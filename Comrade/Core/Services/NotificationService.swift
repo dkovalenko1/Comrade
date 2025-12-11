@@ -8,11 +8,11 @@
 import Foundation
 import UserNotifications
 
-// MARK: - NotificationService
+// NotificationService
 
 final class NotificationService: NSObject {
     
-    // MARK: - Singleton
+    // Singleton
     
     static let shared = NotificationService()
     
@@ -23,7 +23,7 @@ final class NotificationService: NSObject {
         notificationCenter.delegate = self
     }
     
-    // MARK: - Permission
+    // Permission
     
     /// Requests notification permission from the user
     func requestPermission(completion: ((Bool) -> Void)? = nil) {
@@ -46,7 +46,7 @@ final class NotificationService: NSObject {
         }
     }
     
-    // MARK: - Schedule Notifications
+    // Schedule Notifications
     
     /// Schedules a reminder for a task at a specific date
     func scheduleReminder(for task: TaskEntity, at date: Date, title: String? = nil, body: String? = nil) {
@@ -150,7 +150,7 @@ final class NotificationService: NSObject {
         scheduleReminder(for: task, at: date, title: "Upcoming Deadline", body: body)
     }
     
-    // MARK: - Cancel Notifications
+    // Cancel Notifications
     
     /// Cancels all reminders for a specific task
     func cancelReminders(for taskId: UUID) {
@@ -173,7 +173,7 @@ final class NotificationService: NSObject {
         notificationCenter.removeAllPendingNotificationRequests()
     }
     
-    // MARK: - Timer Notifications
+    // Timer Notifications
     
     /// Schedules a notification for when a timer session ends
     func scheduleTimerEndNotification(in seconds: TimeInterval, taskName: String?) {
@@ -220,7 +220,7 @@ final class NotificationService: NSObject {
         )
     }
     
-    // MARK: - Badge Management
+    // Badge Management
     
     /// Updates the app badge with the count of overdue tasks
     func updateBadgeCount(_ count: Int) {
@@ -234,7 +234,7 @@ final class NotificationService: NSObject {
         updateBadgeCount(0)
     }
     
-    // MARK: - Pending Notifications
+    // Pending Notifications
     
     /// Gets all pending notification requests
     func getPendingNotifications(completion: @escaping ([UNNotificationRequest]) -> Void) {
@@ -255,7 +255,7 @@ final class NotificationService: NSObject {
         }
     }
     
-    // MARK: - Helpers
+    // Helpers
     
     /// Creates a unique identifier for a notification
     private func makeIdentifier(taskId: UUID, date: Date) -> String {
@@ -277,7 +277,7 @@ final class NotificationService: NSObject {
     }
 }
 
-// MARK: - UNUserNotificationCenterDelegate
+// UNUserNotificationCenterDelegate
 
 extension NotificationService: UNUserNotificationCenterDelegate {
     
@@ -324,14 +324,14 @@ extension NotificationService: UNUserNotificationCenterDelegate {
     }
 }
 
-// MARK: - Notification Names
+// Notification Names
 
 extension Notification.Name {
     static let notificationTappedForTask = Notification.Name("notificationTappedForTask")
     static let timerNotificationTapped = Notification.Name("timerNotificationTapped")
 }
 
-// MARK: - Convenience Extensions
+// Convenience Extensions
 
 extension NotificationService {
     

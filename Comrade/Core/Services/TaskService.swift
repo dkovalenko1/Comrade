@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-// MARK: - Enums
+// Enums
 
 enum TaskPriority: Int16 {
     case low = 0
@@ -37,7 +37,7 @@ enum TaskFilterStatus {
     case completed
 }
 
-// MARK: - Notification Names
+// Notification Names
 
 extension Notification.Name {
     static let taskCreated = Notification.Name("taskCreated")
@@ -46,11 +46,11 @@ extension Notification.Name {
     static let taskCompleted = Notification.Name("taskCompleted")
 }
 
-// MARK: - TaskService
+// TaskService
 
 final class TaskService {
     
-    // MARK: - Singleton
+    // Singleton
     
     static let shared = TaskService()
     
@@ -58,7 +58,7 @@ final class TaskService {
     
     private init() {}
     
-    // MARK: - CRUD Operations
+    // CRUD Operations
     
     /// Creates a new task with the given parameters
     @discardableResult
@@ -134,7 +134,7 @@ final class TaskService {
         deleteTask(id: id)
     }
     
-    // MARK: - Fetch Operations
+    // Fetch Operations
     
     /// Gets a single task by ID
     func getTask(id: UUID) -> TaskEntity? {
@@ -213,7 +213,7 @@ final class TaskService {
         return coreDataStack.fetch(TaskEntity.self, predicate: predicate, sortDescriptors: [sortDescriptor])
     }
     
-    // MARK: - Completion
+    // Completion
     
     /// Marks a task as completed
     /// Returns false if task has uncompleted dependencies
@@ -273,7 +273,7 @@ final class TaskService {
         }
     }
     
-    // MARK: - Dependencies
+    // Dependencies
     
     /// Checks if task can be completed (all dependencies are completed)
     func canComplete(task: TaskEntity) -> Bool {
@@ -376,7 +376,7 @@ final class TaskService {
         }
     }
     
-    // MARK: - Tags
+    // Tags
     
     /// Adds a tag to a task
     func addTag(_ tag: TagEntity, to task: TaskEntity) {
@@ -400,7 +400,7 @@ final class TaskService {
         return Array(tasks)
     }
     
-    // MARK: - Reminders
+    // Reminders
     
     /// Adds a reminder to a task
     @discardableResult
@@ -436,7 +436,7 @@ final class TaskService {
         return Array(reminders).sorted { ($0.absoluteDate ?? Date.distantFuture) < ($1.absoluteDate ?? Date.distantFuture) }
     }
     
-    // MARK: - Sorting & Filtering
+    // Sorting & Filtering
     
     /// Sorts tasks by the specified criteria
     func sortTasks(_ tasks: [TaskEntity], by sortType: TaskSortType, ascending: Bool = true) -> [TaskEntity] {
@@ -510,7 +510,7 @@ final class TaskService {
         return coreDataStack.fetch(TaskEntity.self, predicate: predicate, sortDescriptors: [sortDescriptor])
     }
     
-    // MARK: - Statistics
+    // Statistics
     
     /// Gets total count of tasks
     func getTotalTaskCount() -> Int {
