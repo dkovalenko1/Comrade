@@ -1,10 +1,3 @@
-//
-//  TasksViewModel.swift
-//  Comrade
-//
-//  Created by Savelii Kozlov on 11.12.2025.
-//
-
 import Foundation
 
 // Section Type
@@ -14,6 +7,7 @@ enum TaskSection: Int, CaseIterable {
     case personal
     case work
     case studies
+    case other
     case completed
     
     var title: String {
@@ -22,6 +16,7 @@ enum TaskSection: Int, CaseIterable {
         case .personal: return "Personal"
         case .work: return "Work"
         case .studies: return "Studies"
+        case .other: return "Other"
         case .completed: return "Completed"
         }
     }
@@ -32,6 +27,7 @@ enum TaskSection: Int, CaseIterable {
         case .personal: return "Personal"
         case .work: return "Work"
         case .studies: return "Studies"
+        case .other: return nil
         case .completed: return nil
         }
     }
@@ -182,8 +178,8 @@ final class TasksViewModel {
                 case "studies":
                     sections[.studies]?.append(task)
                 default:
-                    // Default to personal if unknown category
-                    sections[.personal]?.append(task)
+                    // Custom categories go to Other section
+                    sections[.other]?.append(task)
                 }
             } else {
                 // No category - put in personal
@@ -339,7 +335,7 @@ final class TasksViewModel {
     }
 }
 
-// - Section Header Data
+// Section Header Data
 
 extension TasksViewModel {
     

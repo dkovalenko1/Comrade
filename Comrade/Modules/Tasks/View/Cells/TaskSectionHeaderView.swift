@@ -1,16 +1,9 @@
-//
-//  TaskSectionHeaderView.swift
-//  Comrade
-//
-//  Created by Savelii Kozlov on 11.12.2025.
-//
-
 import UIKit
 
 final class TaskSectionHeaderView: UITableViewHeaderFooterView {
-        
+    
     static let identifier = "TaskSectionHeaderView"
-        
+    
     var onHeaderTapped: (() -> Void)?
     
     // UI Elements
@@ -18,8 +11,7 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 12
+        view.backgroundColor = .systemGroupedBackground
         return view
     }()
     
@@ -74,6 +66,11 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         return gesture
     }()
     
+    // Properties
+    
+    private var isExpanded = false
+    private var hasItems = false
+    
     // Init
     
     override init(reuseIdentifier: String?) {
@@ -90,12 +87,21 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         titleLabel.text = nil
         countLabel.text = nil
         onHeaderTapped = nil
+        isExpanded = false
+        hasItems = false
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateCorners()
     }
     
     // Setup
     
     private func setupUI() {
         contentView.backgroundColor = .clear
+        backgroundView = UIView()
+        backgroundView?.backgroundColor = .clear
         
         contentView.addSubview(containerView)
         containerView.addSubview(iconView)
@@ -107,10 +113,10 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         containerView.addGestureRecognizer(tapGesture)
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             iconView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
             iconView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
@@ -125,7 +131,7 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
             titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
             titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
             
-            countLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 4),
+            countLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 6),
             countLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
             
             chevronImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
@@ -140,14 +146,26 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     func configure(title: String, count: Int, isExpanded: Bool) {
         titleLabel.text = title
         countLabel.text = "\(count)"
+        self.isExpanded = isExpanded
+        self.hasItems = count > 0 && isExpanded
         
-        // Animate chevron rotation
-        UIView.animate(withDuration: 0.2) {
-            if isExpanded {
-                self.chevronImageView.transform = .identity
-            } else {
-                self.chevronImageView.transform = CGAffineTransform(rotationAngle: -.pi / 2)
-            }
+        // Chevron rotation
+        if isExpanded {
+            chevronImageView.transform = .identity
+        } else {
+            chevronImageView.transform = CGAffineTransform(rotationAngle: -.pi / 2)
+        }
+        
+        updateCorners()
+    }
+    
+    private func updateCorners() {
+        if isExpanded && hasItems {
+            containerView.layer.cornerRadius = 12
+            containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        } else {
+            containerView.layer.cornerRadius = 12
+            containerView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         }
     }
     
@@ -155,7 +173,5 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     @objc private func headerTapped() {
         onHeaderTapped?()
-        
-        // Haptic feedback - can be implemented further
     }
 }

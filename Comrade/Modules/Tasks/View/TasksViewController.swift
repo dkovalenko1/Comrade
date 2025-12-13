@@ -1,10 +1,3 @@
-//
-//  TasksViewController.swift
-//  Comrade
-//
-//  Created by Savelii Kozlov on 11.12.2025.
-//
-
 import UIKit
 
 final class TasksViewController: UIViewController {
@@ -16,15 +9,17 @@ final class TasksViewController: UIViewController {
     // UI Elements
     
     private lazy var tableView: UITableView = {
-        let table = UITableView(frame: .zero, style: .insetGrouped)
+        let table = UITableView(frame: .zero, style: .plain)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.delegate = self
         table.dataSource = self
         table.register(TaskCell.self, forCellReuseIdentifier: TaskCell.identifier)
         table.register(TaskSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: TaskSectionHeaderView.identifier)
+        table.register(TaskSectionFooterView.self, forHeaderFooterViewReuseIdentifier: TaskSectionFooterView.identifier)
         table.separatorStyle = .none
-        table.backgroundColor = .systemGroupedBackground
+        table.backgroundColor = .systemBackground
         table.showsVerticalScrollIndicator = false
+        table.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         return table
     }()
     
@@ -37,7 +32,7 @@ final class TasksViewController: UIViewController {
         button.setImage(image, for: .normal)
         
         button.tintColor = .white
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0) // Coral/Red color
+        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
         button.layer.cornerRadius = 28
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -48,23 +43,25 @@ final class TasksViewController: UIViewController {
         return button
     }()
     
-    private lazy var searchController: UISearchController = {
-        let search = UISearchController(searchResultsController: nil)
-        search.searchResultsUpdater = self
-        search.obscuresBackgroundDuringPresentation = false
-        search.searchBar.placeholder = "Search tasks"
-        return search
+    private lazy var filterButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
+        button.setImage(UIImage(systemName: "line.3.horizontal.decrease.circle", withConfiguration: config), for: .normal)
+        button.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
+        button.layer.cornerRadius = 18
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
     }()
     
-    private lazy var filterButton: UIBarButtonItem = {
-        let button = UIBarButtonItem(
-            image: UIImage(systemName: "line.3.horizontal.decrease.circle"),
-            style: .plain,
-            target: self,
-            action: #selector(filterButtonTapped)
-        )
-        button.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-        return button
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Tasks"
+        label.font = .systemFont(ofSize: 32, weight: .bold)
+        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        return label
     }()
     
     private lazy var emptyStateView: UIView = {
@@ -114,32 +111,42 @@ final class TasksViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupNavigationBar()
         bindViewModel()
         viewModel.loadTasks()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
         viewModel.loadTasks()
     }
     
     // Setup
     
     private func setupUI() {
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .systemBackground
         
+        view.addSubview(titleLabel)
+        view.addSubview(filterButton)
         view.addSubview(tableView)
         view.addSubview(emptyStateView)
         view.addSubview(addButton)
         
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            filterButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            filterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            filterButton.widthAnchor.constraint(equalToConstant: 36),
+            filterButton.heightAnchor.constraint(equalToConstant: 36),
+            
+            titleLabel.topAnchor.constraint(equalTo: filterButton.bottomAnchor, constant: 8),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            emptyStateView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyStateView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -149,27 +156,6 @@ final class TasksViewController: UIViewController {
             addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
-    }
-    
-    private func setupNavigationBar() {
-        title = "Tasks"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        
-        // Title color
-        let appearance = UINavigationBarAppearance()
-        appearance.largeTitleTextAttributes = [
-            .foregroundColor: UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-        ]
-        appearance.titleTextAttributes = [
-            .foregroundColor: UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-        ]
-        navigationController?.navigationBar.standardAppearance = appearance
-        navigationController?.navigationBar.scrollEdgeAppearance = appearance
-        
-        navigationItem.rightBarButtonItem = filterButton
-        navigationItem.searchController = searchController
-        navigationItem.hidesSearchBarWhenScrolling = true
-        definesPresentationContext = true
     }
     
     private func bindViewModel() {
@@ -226,17 +212,9 @@ final class TasksViewController: UIViewController {
     // Actions
     
     @objc private func addButtonTapped() {
-        print("Add task tapped")
-        
-        // Placeholder: Create a test task
-        let categories = ["Personal", "Work", "Studies"]
-        let randomCategory = categories.randomElement() ?? "Personal"
-        
-        TaskService.shared.createTask(
-            name: "New Task \(Int.random(in: 1...100))",
-            category: randomCategory,
-            priority: .medium
-        )
+        let editorVC = TaskEditorViewController(mode: .create)
+        editorVC.modalPresentationStyle = .pageSheet
+        present(editorVC, animated: true)
     }
     
     @objc private func filterButtonTapped() {
@@ -264,12 +242,17 @@ final class TasksViewController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
-        // For iPad
         if let popover = alert.popoverPresentationController {
-            popover.barButtonItem = filterButton
+            popover.sourceView = filterButton
         }
         
         present(alert, animated: true)
+    }
+    
+    private func editTask(_ task: TaskEntity) {
+        let editorVC = TaskEditorViewController(mode: .edit(task))
+        editorVC.modalPresentationStyle = .pageSheet
+        present(editorVC, animated: true)
     }
 }
 
@@ -292,9 +275,20 @@ extension TasksViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
+        // Check if last item in section
+        guard let taskSection = TaskSection(rawValue: indexPath.section) else { return cell }
+        let rowCount = viewModel.numberOfRows(in: taskSection)
+        cell.isLastInSection = (indexPath.row == rowCount - 1)
+        
         cell.configure(with: task)
+        
         cell.onCheckboxTapped = { [weak self] in
             self?.viewModel.toggleTaskCompletion(at: indexPath.section, row: indexPath.row)
+        }
+        
+        // Connect edit button callback
+        cell.onEditTapped = { [weak self] in
+            self?.editTask(task)
         }
         
         return cell
@@ -321,8 +315,35 @@ extension TasksViewController: UITableViewDelegate {
         return headerView
     }
     
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard let taskSection = TaskSection(rawValue: section) else { return nil }
+        
+        let isExpanded = viewModel.isSectionExpanded(taskSection)
+        let count = viewModel.taskCount(for: taskSection)
+        
+        if isExpanded && count > 0 {
+            let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: TaskSectionFooterView.identifier) as? TaskSectionFooterView
+            return footerView
+        }
+        
+        return nil
+    }
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 56
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        guard let taskSection = TaskSection(rawValue: section) else { return 0 }
+        
+        let isExpanded = viewModel.isSectionExpanded(taskSection)
+        let count = viewModel.taskCount(for: taskSection)
+        
+        if isExpanded && count > 0 {
+            return 12
+        }
+        
+        return 0
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -330,22 +351,19 @@ extension TasksViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
+        return 52
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         guard let task = viewModel.task(at: indexPath.section, row: indexPath.row) else { return }
-        
-        // TODO: Navigate to TaskEditorViewController for editing
-        print("Selected task: \(task.name ?? "Unknown")")
+        editTask(task)
     }
     
     // Swipe actions
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        // Delete action
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, completion in
             self?.confirmDelete(at: indexPath)
             completion(true)
@@ -353,9 +371,10 @@ extension TasksViewController: UITableViewDelegate {
         deleteAction.image = UIImage(systemName: "trash")
         deleteAction.backgroundColor = .systemRed
         
-        // Edit action
         let editAction = UIContextualAction(style: .normal, title: nil) { [weak self] _, _, completion in
-            self?.editTask(at: indexPath)
+            if let task = self?.viewModel.task(at: indexPath.section, row: indexPath.row) {
+                self?.editTask(task)
+            }
             completion(true)
         }
         editAction.image = UIImage(systemName: "pencil")
@@ -399,21 +418,5 @@ extension TasksViewController: UITableViewDelegate {
         })
         
         present(alert, animated: true)
-    }
-    
-    private func editTask(at indexPath: IndexPath) {
-        guard let task = viewModel.task(at: indexPath.section, row: indexPath.row) else { return }
-        // TODO: Navigate to TaskEditorViewController
-        print("Edit task: \(task.name ?? "Unknown")")
-    }
-}
-
-// UISearchResultsUpdating
-
-extension TasksViewController: UISearchResultsUpdating {
-    
-    func updateSearchResults(for searchController: UISearchController) {
-        let query = searchController.searchBar.text ?? ""
-        viewModel.search(query)
     }
 }
