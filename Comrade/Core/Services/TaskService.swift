@@ -1,10 +1,3 @@
-//
-//  TaskService.swift
-//  Comrade
-//
-//  Created by Savelii Kozlov on 11.12.2025.
-//
-
 import Foundation
 import CoreData
 

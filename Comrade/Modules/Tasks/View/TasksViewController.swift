@@ -226,7 +226,6 @@ final class TasksViewController: UIViewController {
     // Actions
     
     @objc private func addButtonTapped() {
-        // TODO: Navigate to TaskEditorViewController
         print("Add task tapped")
         
         // Placeholder: Create a test task

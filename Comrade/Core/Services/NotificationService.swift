@@ -1,10 +1,3 @@
-//
-//  NotificationService.swift
-//  Comrade
-//
-//  Created by Developer 2
-//
-
 import Foundation
 import UserNotifications
 

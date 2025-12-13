@@ -26,7 +26,8 @@
         <attribute name="photoData" optional="YES" attributeType="Binary"/>
         <attribute name="priority" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="taskDescription" optional="YES" attributeType="String"/>
-        <relationship name="dependencies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="dependencies" inverseEntity="TaskEntity"/>
+        <relationship name="dependencies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="dependentOn" inverseEntity="TaskEntity"/>
+        <relationship name="dependentOn" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="dependencies" inverseEntity="TaskEntity"/>
         <relationship name="reminders" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ReminderEntity" inverseName="task" inverseEntity="ReminderEntity"/>
         <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TimerSession" inverseName="task" inverseEntity="TimerSession"/>
         <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TagEntity" inverseName="tasks" inverseEntity="TagEntity"/>
