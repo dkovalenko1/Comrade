@@ -667,6 +667,53 @@ final class TaskEditorViewController: UIViewController {
     }
     
     private func showDependenciesPicker() {
+        let alert = UIAlertController(title: "Dependencies", message: nil, preferredStyle: .actionSheet)
+        
+        // View dependency chain (only in edit mode)
+        if case .edit(let task) = viewModel.mode {
+            alert.addAction(UIAlertAction(title: "View Dependency Chain", style: .default) { [weak self] _ in
+                self?.showDependencyChain(for: task)
+            })
+        }
+        
+        // Add new dependency
+        alert.addAction(UIAlertAction(title: "Add Dependency", style: .default) { [weak self] _ in
+            self?.showAddDependencyPicker()
+        })
+        
+        // Remove dependency (if any exist)
+        if !viewModel.dependencies.isEmpty {
+            alert.addAction(UIAlertAction(title: "Remove Dependency", style: .destructive) { [weak self] _ in
+                self?.showRemoveDependencyPicker()
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = dependenciesRow
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func showDependencyChain(for task: TaskEntity) {
+        let chainVC = DependencyChainViewController(
+            task: task,
+            pendingDependencies: viewModel.dependencies
+        )
+        
+        // Handle changes made in dependency chain
+        chainVC.onDependenciesChanged = { [weak self] updatedDependencies in
+            self?.viewModel.dependencies = updatedDependencies
+            self?.updateDependenciesDisplay()
+        }
+        
+        let navController = UINavigationController(rootViewController: chainVC)
+        present(navController, animated: true)
+    }
+    
+    private func showAddDependencyPicker() {
         let availableTasks = viewModel.getAvailableTasksForDependency()
         
         if availableTasks.isEmpty {
@@ -674,11 +721,30 @@ final class TaskEditorViewController: UIViewController {
             return
         }
         
-        let alert = UIAlertController(title: "Add Dependency", message: nil, preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Add Dependency", message: "Select a task that must be completed first", preferredStyle: .actionSheet)
         
-        for task in availableTasks {
+        for task in availableTasks.prefix(10) {
             alert.addAction(UIAlertAction(title: task.name ?? "Untitled", style: .default) { [weak self] _ in
                 self?.viewModel.addDependency(task)
+                self?.updateDependenciesDisplay()
+            })
+        }
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = dependenciesRow
+        }
+        
+        present(alert, animated: true)
+    }
+    
+    private func showRemoveDependencyPicker() {
+        let alert = UIAlertController(title: "Remove Dependency", message: nil, preferredStyle: .actionSheet)
+        
+        for (index, task) in viewModel.dependencies.enumerated() {
+            alert.addAction(UIAlertAction(title: task.name ?? "Untitled", style: .destructive) { [weak self] _ in
+                self?.viewModel.removeDependency(at: index)
                 self?.updateDependenciesDisplay()
             })
         }
