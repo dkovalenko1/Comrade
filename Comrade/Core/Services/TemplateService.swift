@@ -24,6 +24,12 @@ final class TemplateService {
         return coreDataStack.fetch(PomodoroTemplate.self, predicate: predicate, sortDescriptors: [sort])
     }
     
+    func getCustomTemplates() -> [PomodoroTemplate] {
+        let predicate = NSPredicate(format: "isCustom == YES")
+        let sort = NSSortDescriptor(key: "name", ascending: true)
+        return coreDataStack.fetch(PomodoroTemplate.self, predicate: predicate, sortDescriptors: [sort])
+    }
+    
     func createCustomTemplate(name: String, work: Int, short: Int, long: Int, cycles: Int) -> PomodoroTemplate {
         let template: PomodoroTemplate = coreDataStack.create(PomodoroTemplate.self)
         template.id = UUID()
@@ -50,6 +56,7 @@ final class TemplateService {
         guard template.isCustom else { return }
         
         coreDataStack.delete(template)
+        saveContext()
     }
     
     func getTemplate(id: UUID) -> PomodoroTemplate? {

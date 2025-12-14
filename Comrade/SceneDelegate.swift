@@ -18,8 +18,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         // Create TasksViewController with navigation
-        let tasksVC = TasksViewController()
-        let navigationController = UINavigationController(rootViewController: tasksVC)
+//        let tasksVC = TasksViewController()
+//        let navigationController = UINavigationController(rootViewController: tasksVC)
+        let templateVC = TemplatesViewController()
+        let navigationController = UINavigationController(rootViewController: templateVC)
         
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
