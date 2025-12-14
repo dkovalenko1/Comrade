@@ -41,4 +41,13 @@
         <attribute name="wasCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="session" inverseEntity="TaskEntity"/>
     </entity>
+    <entity name="PomodoroTemplate" representedClassName="PomodoroTemplate" syncable="YES" codeGenerationType="class">
+        <attribute name="cycles" optional="YES" attributeType="Integer 32" defaultValueString="4" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isCustom" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="longBreakDuration" optional="YES" attributeType="Integer 32" defaultValueString="15" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="shortBreakDuration" optional="YES" attributeType="Integer 32" defaultValueString="5" usesScalarValueType="YES"/>
+        <attribute name="workDuration" optional="YES" attributeType="Integer 32" defaultValueString="25" usesScalarValueType="YES"/>
+    </entity>
 </model>
