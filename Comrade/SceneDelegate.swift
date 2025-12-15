@@ -20,8 +20,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Create TasksViewController with navigation
 //        let tasksVC = TasksViewController()
 //        let navigationController = UINavigationController(rootViewController: tasksVC)
-        let templateVC = TemplatesViewController()
-        let navigationController = UINavigationController(rootViewController: templateVC)
+//        let templateVC = TemplatesViewController()
+//        let navigationController = UINavigationController(rootViewController: templateVC)
+        let calendarVC = CalendarViewController()
+        let navigationController = UINavigationController(rootViewController: calendarVC)
         
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
