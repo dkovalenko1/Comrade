@@ -47,9 +47,11 @@ final class TaskService {
     
     static let shared = TaskService()
     
-    private let coreDataStack = CoreDataStack.shared
+    private let coreDataStack: CoreDataStack
     
-    private init() {}
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
+    }
     
     // CRUD Operations
     

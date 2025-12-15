@@ -20,6 +20,7 @@ final class TasksViewController: UIViewController {
         table.backgroundColor = .systemBackground
         table.showsVerticalScrollIndicator = false
         table.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
+        table.accessibilityIdentifier = "tasks_table_view"
         return table
     }()
     
@@ -40,6 +41,7 @@ final class TasksViewController: UIViewController {
         button.layer.shadowOpacity = 0.2
         
         button.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "add_task_button"
         return button
     }()
     
@@ -61,6 +63,7 @@ final class TasksViewController: UIViewController {
         label.text = "Tasks"
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.accessibilityIdentifier = "tasks_title"
         return label
     }()
     
@@ -306,10 +309,20 @@ extension TasksViewController: UITableViewDelegate {
         }
         
         let data = viewModel.headerData(for: taskSection)
-        headerView.configure(title: data.title, count: data.count, isExpanded: data.isExpanded)
+        let shouldShowDelete = taskSection == .completed
+        headerView.configure(
+            title: data.title,
+            count: data.count,
+            isExpanded: data.isExpanded,
+            showDeleteAll: shouldShowDelete
+        )
         
         headerView.onHeaderTapped = { [weak self] in
             self?.viewModel.toggleSection(taskSection)
+        }
+        
+        headerView.onDeleteTapped = { [weak self] in
+            self?.confirmDeleteAllCompleted()
         }
         
         return headerView
@@ -415,6 +428,21 @@ extension TasksViewController: UITableViewDelegate {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
             self?.viewModel.deleteTask(at: indexPath.section, row: indexPath.row)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func confirmDeleteAllCompleted() {
+        let alert = UIAlertController(
+            title: "Delete All Completed",
+            message: "This will permanently remove all completed tasks. Continue?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            self?.viewModel.deleteAllCompletedTasks()
         })
         
         present(alert, animated: true)

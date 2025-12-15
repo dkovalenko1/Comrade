@@ -11,14 +11,22 @@ import CoreData
 class CoreDataStack {
 
     static let shared = CoreDataStack()
+    
+    private let inMemory: Bool
 
-    private init() {
-        
+    init(inMemory: Bool = false) {
+        self.inMemory = inMemory
     }
 
     /// Persistent container for the application's Core Data store
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Comrade")
+        
+        if inMemory {
+            let description = NSPersistentStoreDescription()
+            description.url = URL(fileURLWithPath: "/dev/null")
+            container.persistentStoreDescriptions = [description]
+        }
 
         container.loadPersistentStores { storeDescription, error in
             if let error = error as NSError? {
@@ -159,5 +167,21 @@ class CoreDataStack {
     /// Resets the main context (discards all unsaved changes)
     func reset() {
         context.reset()
+    }
+    
+    /// Removes the persistent store files (sqlite, shm, wal) to start with a clean database
+    func wipePersistentStore() {
+        let fileManager = FileManager.default
+        let storeURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent("Comrade.sqlite")
+        let basePath = storeURL.path
+        let paths = [basePath, "\(basePath)-shm", "\(basePath)-wal"]
+        
+        for path in paths where fileManager.fileExists(atPath: path) {
+            do {
+                try fileManager.removeItem(atPath: path)
+            } catch {
+                print("Failed to remove persistent store at \(path): \(error)")
+            }
+        }
     }
 }

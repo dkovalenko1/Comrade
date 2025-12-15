@@ -27,6 +27,7 @@ final class CategoryService {
     // Properties
     
     private let userDefaultsKey = "com.comrade.categories"
+    private let userDefaults: UserDefaults
     
     private(set) var categories: [Category] = []
     
@@ -40,14 +41,15 @@ final class CategoryService {
     
     // Init
     
-    private init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         loadCategories()
     }
     
     // Persistence
     
     private func loadCategories() {
-        if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
+        if let data = userDefaults.data(forKey: userDefaultsKey),
            let savedCategories = try? JSONDecoder().decode([Category].self, from: data) {
             categories = savedCategories
         } else {
@@ -59,7 +61,7 @@ final class CategoryService {
     
     private func saveCategories() {
         if let data = try? JSONEncoder().encode(categories) {
-            UserDefaults.standard.set(data, forKey: userDefaultsKey)
+            userDefaults.set(data, forKey: userDefaultsKey)
         }
         
         NotificationCenter.default.post(name: .categoriesUpdated, object: nil)

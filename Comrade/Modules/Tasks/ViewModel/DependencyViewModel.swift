@@ -20,7 +20,7 @@ final class DependencyViewModel {
     
     // Properties
     
-    private let taskService = TaskService.shared
+    private let taskService: TaskService
     private let rootTask: TaskEntity
     private var pendingDependencies: [TaskEntity]  // Dependencies not yet saved to CoreData
     
@@ -82,9 +82,14 @@ final class DependencyViewModel {
     
     // Init
     
-    init(task: TaskEntity, pendingDependencies: [TaskEntity] = []) {
+    init(
+        task: TaskEntity,
+        pendingDependencies: [TaskEntity] = [],
+        taskService: TaskService = .shared
+    ) {
         self.rootTask = task
         self.pendingDependencies = pendingDependencies
+        self.taskService = taskService
         loadDependencies()
     }
     

@@ -22,6 +22,7 @@ final class TaskCell: UITableViewCell {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(checkboxTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "task_checkbox"
         return button
     }()
     
