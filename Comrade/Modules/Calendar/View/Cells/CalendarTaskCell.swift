@@ -5,6 +5,8 @@ final class CalendarTaskCell: UITableViewCell {
     
     static let identifier = "CalendarTaskCell"
     
+    // MARK: - UI Elements
+    
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .systemGray6
@@ -50,6 +52,8 @@ final class CalendarTaskCell: UITableViewCell {
         iv.transform = CGAffineTransform(rotationAngle: .pi / 2)
         return iv
     }()
+    
+    // MARK: - Init
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -122,14 +126,35 @@ final class CalendarTaskCell: UITableViewCell {
             timeDot.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
         }
         
-        if task.deadlineIsAllDay {
-            timeLabel.text = "All Day"
-        } else if let date = task.deadline {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "hh:mm a"
-            timeLabel.text = formatter.string(from: date)
+        if let deadline = task.deadline {
+            let calendar = Calendar.current
+            let startOfToday = calendar.startOfDay(for: Date())
+            let startOfDeadline = calendar.startOfDay(for: deadline)
+            
+            let isOverdue = startOfDeadline < startOfToday
+            
+            timeLabel.textColor = isOverdue ? .systemRed : .secondaryLabel
+            
+            if task.deadlineIsAllDay {
+                if isOverdue {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "MMM d"
+                    timeLabel.text = formatter.string(from: deadline)
+                } else {
+                    timeLabel.text = "All Day"
+                }
+            } else {
+                let formatter = DateFormatter()
+                if isOverdue {
+                    formatter.dateFormat = "MMM d, hh:mm a"
+                } else {
+                    formatter.dateFormat = "hh:mm a"
+                }
+                timeLabel.text = formatter.string(from: deadline)
+            }
         } else {
             timeLabel.text = "No time"
+            timeLabel.textColor = .secondaryLabel
         }
     }
 }

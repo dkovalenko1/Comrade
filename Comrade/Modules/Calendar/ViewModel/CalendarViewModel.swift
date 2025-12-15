@@ -15,10 +15,18 @@ final class CalendarViewModel {
     
     private var deadlineDates: Set<String> = []
     
+    private(set) var highPriorityTasks: [TaskEntity] = []
+    private(set) var mediumPriorityTasks: [TaskEntity] = []
+    private(set) var lowPriorityTasks: [TaskEntity] = []
+    
     var onDateChanged: (() -> Void)?
     var onDataUpdated: (() -> Void)?
     
     init() {
+        let today = Date()
+        currentDate = today
+        selectedDate = today
+        
         refreshDeadlines()
         generateCalendarData()
         fetchTasks()
@@ -126,29 +134,47 @@ final class CalendarViewModel {
     }
     
     private func fetchTasks() {
-        let allTasks = taskService.getActiveTasks()
-        let calendar = Calendar.current
-        
-        let filteredTasks = allTasks.filter { task in
-            guard let deadline = task.deadline else { return false }
-            return calendar.isDate(deadline, inSameDayAs: selectedDate)
-        }
-        
-        tasksForSelectedDate = filteredTasks.sorted { t1, t2 in
-            if t1.priority != t2.priority {
-                return t1.priority > t2.priority
+            let allTasks = taskService.getActiveTasks()
+            let calendar = Calendar.current
+            let startOfSelectedDate = calendar.startOfDay(for: selectedDate)
+            let startOfToday = calendar.startOfDay(for: Date())
+            
+            var visibleTasks = allTasks.filter { task in
+                guard let deadline = task.deadline else { return false }
+                let startOfDeadline = calendar.startOfDay(for: deadline)
+                
+                if calendar.isDate(deadline, inSameDayAs: selectedDate) {
+                    return true
+                }
+                
+                if startOfDeadline < startOfSelectedDate && startOfSelectedDate <= startOfToday {
+                    return true
+                }
+                
+                return false
             }
             
-            if t1.deadlineIsAllDay != t2.deadlineIsAllDay {
-                return t1.deadlineIsAllDay
+            let timeSorter: (TaskEntity, TaskEntity) -> Bool = { t1, t2 in
+                if t1.deadlineIsAllDay != t2.deadlineIsAllDay {
+                    return t1.deadlineIsAllDay
+                }
+                guard let d1 = t1.deadline, let d2 = t2.deadline else { return false }
+                return d1 < d2
             }
             
-            guard let d1 = t1.deadline, let d2 = t2.deadline else { return false }
-            return d1 < d2
+            tasksForSelectedDate = visibleTasks.sorted { t1, t2 in
+                if t1.priority != t2.priority {
+                    return t1.priority > t2.priority
+                }
+                return timeSorter(t1, t2)
+            }
+            
+            highPriorityTasks = tasksForSelectedDate.filter { $0.priority == 2 }
+            mediumPriorityTasks = tasksForSelectedDate.filter { $0.priority == 1 }
+            lowPriorityTasks = tasksForSelectedDate.filter { $0.priority == 0 }
+            
+            onDataUpdated?()
         }
-        
-        onDataUpdated?()
-    }
     
     var titleString: String {
         let formatter = DateFormatter()
