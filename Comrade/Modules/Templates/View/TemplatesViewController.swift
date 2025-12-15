@@ -104,9 +104,12 @@ extension TemplatesViewController: UICollectionViewDataSource, UICollectionViewD
             isExpanded: isExpanded
         )
         
-        cell.onMainButtonTapped = {
+        cell.onMainButtonTapped = { [weak self] in
             if case .createCustom = item {
-                print("Open Template Editor")
+                let editorVC = TemplateEditorViewController()
+                let nav = UINavigationController(rootViewController: editorVC)
+
+                self?.present(nav, animated: true)
             } else {
                 print("Use template: \(data.title)")
             }

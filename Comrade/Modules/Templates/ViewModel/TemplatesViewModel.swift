@@ -86,11 +86,21 @@ final class TemplatesViewModel {
             let total = (Int(t.workDuration) + Int(t.shortBreakDuration)) * Int(t.cycles)
             let subtitle = "\(total) minutes"
             
+            var pattern = ""
+            for i in 1...t.cycles {
+                pattern += "\(t.workDuration)-"
+                if i < t.cycles {
+                    pattern += "\(t.shortBreakDuration)-"
+                } else {
+                    pattern += "\(t.longBreakDuration)"
+                }
+            }
+            
             let details = """
             - Work: \(t.workDuration) min
             - Short break: \(t.shortBreakDuration) min
             - Long break: \(t.longBreakDuration) min (after \(t.cycles) cycles)
-            - Pattern: \(t.workDuration)-\(t.shortBreakDuration)-\(t.workDuration)...
+            - Pattern: \(pattern)
             """
             
             let icon: String
