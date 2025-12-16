@@ -57,7 +57,7 @@ final class AchievementsService {
         let taskID = task?.objectID
         coreData.performBackground { [weak self] context in
             guard let self else { return }
-            let backgroundTask = taskID.flatMap { context.object(with: $0) as? TaskEntity }
+            let backgroundTask = self.resolve(taskID: taskID, in: context)
             let unlocked = self.evaluateAchievements(
                 session: nil,
                 context: nil,
@@ -96,6 +96,7 @@ final class AchievementsService {
         let request: NSFetchRequest<AchievementEntity> = AchievementEntity.fetchRequest()
         let achievements = (try? workingContext.fetch(request)) ?? []
         var unlockedNow: [Achievement] = []
+        let resolvedTask = resolve(task: completedTask, in: workingContext)
 
         achievements.forEach { entity in
             guard var model = map(entity: entity) else { return }
@@ -105,7 +106,7 @@ final class AchievementsService {
                 id: model.id,
                 session: session,
                 context: context,
-                task: completedTask,
+                task: resolvedTask,
                 managedObjectContext: workingContext
             )
 
@@ -137,7 +138,7 @@ final class AchievementsService {
                     for: model.id,
                     session: session,
                     context: context,
-                    task: completedTask,
+                    task: resolvedTask,
                     managedObjectContext: workingContext
                 )
                 apply(model: model, to: entity)
@@ -431,6 +432,26 @@ final class AchievementsService {
         entity.target = model.target
         entity.isUnlocked = model.isUnlocked
         entity.unlockedAt = model.unlockedAt
+    }
+
+    private func resolve(task: TaskEntity?, in context: NSManagedObjectContext) -> TaskEntity? {
+        guard let task, let sourceContext = task.managedObjectContext else { return nil }
+        guard sourceContext.persistentStoreCoordinator == context.persistentStoreCoordinator else { return nil }
+        if sourceContext === context { return task }
+        do {
+            return try context.existingObject(with: task.objectID) as? TaskEntity
+        } catch {
+            return nil
+        }
+    }
+
+    private func resolve(taskID: NSManagedObjectID?, in context: NSManagedObjectContext) -> TaskEntity? {
+        guard let taskID else { return nil }
+        do {
+            return try context.existingObject(with: taskID) as? TaskEntity
+        } catch {
+            return nil
+        }
     }
 
     private func setupObservers() {
