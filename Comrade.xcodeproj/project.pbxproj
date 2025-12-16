@@ -6,6 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E15737D92EF02E36003CBA9B /* CategoryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D42EF02E36003CBA9B /* CategoryServiceTests.swift */; };
+		E15737DA2EF02E36003CBA9B /* NotificationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D62EF02E36003CBA9B /* NotificationServiceTests.swift */; };
+		E15737DB2EF02E36003CBA9B /* CoreDataStackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D52EF02E36003CBA9B /* CoreDataStackTests.swift */; };
+		E15737DC2EF02E36003CBA9B /* TagServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D72EF02E36003CBA9B /* TagServiceTests.swift */; };
+		E15737DD2EF02E36003CBA9B /* TaskServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D82EF02E36003CBA9B /* TaskServiceTests.swift */; };
+		E15737E12EF0317B003CBA9B /* TasksViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737E02EF0317B003CBA9B /* TasksViewModelTests.swift */; };
+		E15737E32EF0317B003CBA9B /* TaskEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737DF2EF0317B003CBA9B /* TaskEditorViewModelTests.swift */; };
+		8469081D2EEF7591009983F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8469081C2EEF7591009983F6 /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		637FA8262EE351F400DE234C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +38,14 @@
 		637FA80F2EE351F200DE234C /* Comrade.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comrade.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		637FA8252EE351F400DE234C /* ComradeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ComradeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		637FA82F2EE351F400DE234C /* ComradeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ComradeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E15737D42EF02E36003CBA9B /* CategoryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryServiceTests.swift; sourceTree = "<group>"; };
+		E15737D52EF02E36003CBA9B /* CoreDataStackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStackTests.swift; sourceTree = "<group>"; };
+		E15737D62EF02E36003CBA9B /* NotificationServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationServiceTests.swift; sourceTree = "<group>"; };
+		E15737D72EF02E36003CBA9B /* TagServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagServiceTests.swift; sourceTree = "<group>"; };
+		E15737D82EF02E36003CBA9B /* TaskServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskServiceTests.swift; sourceTree = "<group>"; };
+		E15737DF2EF0317B003CBA9B /* TaskEditorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorViewModelTests.swift; sourceTree = "<group>"; };
+		E15737E02EF0317B003CBA9B /* TasksViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksViewModelTests.swift; sourceTree = "<group>"; };
+		E15836E02EEF740400217C10 /* Comrade.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Comrade.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -55,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8469081D2EEF7591009983F6 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +98,8 @@
 		637FA8062EE351F200DE234C = {
 			isa = PBXGroup;
 			children = (
+				E15836E02EEF740400217C10 /* Comrade.xctestplan */,
+				E179BA7A2EEE38FC0016EB52 /* ComradeTests */,
 				637FA8112EE351F200DE234C /* Comrade */,
 				637FA8102EE351F200DE234C /* Products */,
 			);
@@ -91,6 +113,20 @@
 				637FA82F2EE351F400DE234C /* ComradeUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E179BA7A2EEE38FC0016EB52 /* ComradeTests */ = {
+			isa = PBXGroup;
+			children = (
+				E15737DF2EF0317B003CBA9B /* TaskEditorViewModelTests.swift */,
+				E15737E02EF0317B003CBA9B /* TasksViewModelTests.swift */,
+				E15737D42EF02E36003CBA9B /* CategoryServiceTests.swift */,
+				E15737D52EF02E36003CBA9B /* CoreDataStackTests.swift */,
+				E15737D62EF02E36003CBA9B /* NotificationServiceTests.swift */,
+				E15737D72EF02E36003CBA9B /* TagServiceTests.swift */,
+				E15737D82EF02E36003CBA9B /* TaskServiceTests.swift */,
+			);
+			path = ComradeTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -113,6 +149,7 @@
 			);
 			name = Comrade;
 			packageProductDependencies = (
+				8469081C2EEF7591009983F6 /* SnapKit */,
 			);
 			productName = Comrade;
 			productReference = 637FA80F2EE351F200DE234C /* Comrade.app */;
@@ -173,10 +210,12 @@
 					};
 					637FA8242EE351F400DE234C = {
 						CreatedOnToolsVersion = 26.0;
+						LastSwiftMigration = 2600;
 						TestTargetID = 637FA80E2EE351F200DE234C;
 					};
 					637FA82E2EE351F400DE234C = {
 						CreatedOnToolsVersion = 26.0;
+						LastSwiftMigration = 2600;
 						TestTargetID = 637FA80E2EE351F200DE234C;
 					};
 				};
@@ -190,6 +229,9 @@
 			);
 			mainGroup = 637FA8062EE351F200DE234C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 637FA8102EE351F200DE234C /* Products */;
 			projectDirPath = "";
@@ -238,6 +280,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E15737D92EF02E36003CBA9B /* CategoryServiceTests.swift in Sources */,
+				E15737DA2EF02E36003CBA9B /* NotificationServiceTests.swift in Sources */,
+				E15737E12EF0317B003CBA9B /* TasksViewModelTests.swift in Sources */,
+				E15737E32EF0317B003CBA9B /* TaskEditorViewModelTests.swift in Sources */,
+				E15737DB2EF02E36003CBA9B /* CoreDataStackTests.swift in Sources */,
+				E15737DC2EF02E36003CBA9B /* TagServiceTests.swift in Sources */,
+				E15737DD2EF02E36003CBA9B /* TaskServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +496,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -457,6 +507,8 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -468,6 +520,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -478,6 +531,7 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -488,6 +542,7 @@
 		637FA8412EE351F400DE234C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -497,6 +552,7 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -507,6 +563,7 @@
 		637FA8422EE351F400DE234C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -563,6 +620,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8469081C2EEF7591009983F6 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 637FA8072EE351F200DE234C /* Project object */;
 }

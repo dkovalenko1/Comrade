@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "935B0875-F2FF-4E65-BEF7-AA811362605A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Comrade.xcodeproj",
+      "identifier" : "637FA80E2EE351F200DE234C",
+      "name" : "Comrade"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Comrade.xcodeproj",
+        "identifier" : "637FA8242EE351F400DE234C",
+        "name" : "ComradeTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Comrade.xcodeproj",
+        "identifier" : "637FA82E2EE351F400DE234C",
+        "name" : "ComradeUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
