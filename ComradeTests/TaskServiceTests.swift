@@ -39,7 +39,6 @@ final class TaskServiceTests: XCTestCase {
         XCTAssertEqual(task.priority, priority.rawValue)
         XCTAssertFalse(task.isCompleted)
         
-        // Verify it's saved in Core Data
         let fetchRequest: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
         let tasks = try? coreDataStack.context.fetch(fetchRequest)
         
