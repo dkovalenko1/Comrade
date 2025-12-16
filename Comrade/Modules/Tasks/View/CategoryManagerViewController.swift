@@ -4,7 +4,7 @@ final class CategoryManagerViewController: UIViewController {
     
     // Properties
     
-    private let categoryService = CategoryService.shared
+    private let viewModel = CategoryManagerViewModel()
     
     // UI Elements
     
@@ -44,6 +44,7 @@ final class CategoryManagerViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigation()
+        bindViewModel()
     }
     
     // Setup
@@ -99,6 +100,16 @@ final class CategoryManagerViewController: UIViewController {
         navigationItem.rightBarButtonItems = [editButton, resetButton]
     }
     
+    private func bindViewModel() {
+        viewModel.onCategoriesUpdated = { [weak self] in
+            self?.tableView.reloadData()
+        }
+        
+        viewModel.onError = { [weak self] message in
+            self?.showAlert(title: "Error", message: message)
+        }
+    }
+    
     // Actions
     
     @objc private func closeTapped() {
@@ -119,8 +130,7 @@ final class CategoryManagerViewController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Reset", style: .destructive) { [weak self] _ in
-            self?.categoryService.resetToDefaults()
-            self?.tableView.reloadData()
+            self?.viewModel.resetToDefaults()
         })
         
         present(alert, animated: true)
@@ -174,12 +184,12 @@ final class CategoryManagerViewController: UIViewController {
                 guard let self = self else { return }
                 
                 if let category = existingCategory {
-                    self.categoryService.updateCategory(category, name: name, colorHex: color.hex)
+                    if let index = self.viewModel.categories.firstIndex(of: category) {
+                        self.viewModel.updateCategory(at: index, name: name, colorHex: color.hex)
+                    }
                 } else {
-                    self.categoryService.createCategory(name: name, colorHex: color.hex)
+                    self.viewModel.createCategory(name: name, colorHex: color.hex)
                 }
-                
-                self.tableView.reloadData()
             })
         }
         
@@ -193,26 +203,10 @@ final class CategoryManagerViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func getColorIndex(for hex: String) -> Int {
-        switch hex.uppercased() {
-        case "#007AFF": return 0
-        case "#34C759": return 1
-        case "#FF6B6B", "#FF3B30": return 2
-        case "#FF9500": return 3
-        case "#AF52DE": return 4
-        default: return 0
-        }
-    }
-    
-    private func getColorHex(for index: Int) -> String {
-        switch index {
-        case 0: return "#007AFF"
-        case 1: return "#34C759"
-        case 2: return "#FF6B6B"
-        case 3: return "#FF9500"
-        case 4: return "#AF52DE"
-        default: return "#007AFF"
-        }
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 }
 
@@ -221,7 +215,7 @@ final class CategoryManagerViewController: UIViewController {
 extension CategoryManagerViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categoryService.categories.count
+        return viewModel.categories.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -229,8 +223,9 @@ extension CategoryManagerViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let category = categoryService.categories[indexPath.row]
-        cell.configure(with: category)
+        if let category = viewModel.category(at: indexPath.row) {
+            cell.configure(with: category)
+        }
         return cell
     }
     
@@ -250,7 +245,7 @@ extension CategoryManagerViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let category = categoryService.categories[indexPath.row]
+        guard let category = viewModel.category(at: indexPath.row) else { return }
         
         // Don't allow editing default categories
         if category.isDefault {
@@ -268,13 +263,12 @@ extension CategoryManagerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        let category = categoryService.categories[indexPath.row]
-        return !category.isDefault
+        return viewModel.canEditCategory(at: indexPath.row)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let category = categoryService.categories[indexPath.row]
+            guard let category = viewModel.category(at: indexPath.row) else { return }
             
             let alert = UIAlertController(
                 title: "Delete Category",
@@ -284,8 +278,7 @@ extension CategoryManagerViewController: UITableViewDelegate {
             
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
             alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
-                self?.categoryService.deleteCategory(at: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .automatic)
+                self?.viewModel.deleteCategory(at: indexPath.row)
             })
             
             present(alert, animated: true)
@@ -297,7 +290,7 @@ extension CategoryManagerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        categoryService.moveCategory(from: sourceIndexPath.row, to: destinationIndexPath.row)
+        viewModel.moveCategory(from: sourceIndexPath.row, to: destinationIndexPath.row)
     }
 }
 

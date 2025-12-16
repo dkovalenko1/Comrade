@@ -10,7 +10,6 @@ final class TaskEditorViewModelTests: XCTestCase {
     var categoryService: CategoryService!
     var coreDataStack: CoreDataStack!
     var mockNotificationCenter: MockNotificationCenter!
-    var userDefaults: UserDefaults!
     
     override func setUp() {
         super.setUp()
@@ -20,9 +19,7 @@ final class TaskEditorViewModelTests: XCTestCase {
         mockNotificationCenter = MockNotificationCenter()
         notificationService = NotificationService(notificationCenter: mockNotificationCenter)
         
-        userDefaults = UserDefaults(suiteName: "TestDefaults")
-        userDefaults.removePersistentDomain(forName: "TestDefaults")
-        categoryService = CategoryService(userDefaults: userDefaults)
+        categoryService = CategoryService(coreDataStack: coreDataStack)
     }
     
     override func tearDown() {
@@ -32,8 +29,6 @@ final class TaskEditorViewModelTests: XCTestCase {
         categoryService = nil
         coreDataStack = nil
         mockNotificationCenter = nil
-        userDefaults.removePersistentDomain(forName: "TestDefaults")
-        userDefaults = nil
         super.tearDown()
     }
     

@@ -1,4 +1,5 @@
 import Foundation
+import CoreData
 
 // Category Model
 
@@ -26,9 +27,8 @@ final class CategoryService {
     
     // Properties
     
-    private let userDefaultsKey = "com.comrade.categories"
-    private let userDefaults: UserDefaults
-    
+    private let coreDataStack: CoreDataStack
+    private let legacyUserDefaultsKey = "com.comrade.categories"
     private(set) var categories: [Category] = []
     
     // Default Categories
@@ -41,67 +41,88 @@ final class CategoryService {
     
     // Init
     
-    init(userDefaults: UserDefaults = .standard) {
-        self.userDefaults = userDefaults
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
         loadCategories()
     }
     
     // Persistence
     
     private func loadCategories() {
-        if let data = userDefaults.data(forKey: userDefaultsKey),
-           let savedCategories = try? JSONDecoder().decode([Category].self, from: data) {
-            categories = savedCategories
-        } else {
-            // First launch - use default categories
-            categories = defaultCategories
-            saveCategories()
+        refreshCategories()
+        
+        // First launch - seed defaults
+        if categories.isEmpty {
+            if !migrateLegacyCategories() {
+                seedDefaultCategories()
+            }
         }
     }
     
-    private func saveCategories() {
-        if let data = try? JSONEncoder().encode(categories) {
-            userDefaults.set(data, forKey: userDefaultsKey)
-        }
+    private func refreshCategories() {
+        let request: NSFetchRequest<CategoryEntity> = CategoryEntity.fetchRequest()
+        let sort = NSSortDescriptor(key: "sortOrder", ascending: true)
+        request.sortDescriptors = [sort]
         
+        do {
+            let entities = try coreDataStack.context.fetch(request)
+            categories = entities.map { Category(from: $0) }
+        } catch {
+            print("Failed to fetch categories: \(error)")
+            categories = []
+        }
+    }
+    
+    private func seedDefaultCategories() {
+        persist(categories: defaultCategories)
+    }
+    
+    private func notifyUpdate() {
         NotificationCenter.default.post(name: .categoriesUpdated, object: nil)
+    }
+    
+    private func saveContextAndRefresh() {
+        coreDataStack.save()
+        refreshCategories()
+        notifyUpdate()
     }
     
     // CRUD Operations
     
     @discardableResult
     func createCategory(name: String, colorHex: String) -> Category {
-        let category = Category(name: name, colorHex: colorHex, isDefault: false)
-        categories.append(category)
-        saveCategories()
-        return category
+        let entity = CategoryEntity(context: coreDataStack.context)
+        entity.id = UUID()
+        entity.name = name
+        entity.colorHex = colorHex
+        entity.isDefault = false
+        entity.sortOrder = Int32(categories.count)
+        
+        saveContextAndRefresh()
+        return categories.last ?? Category(name: name, colorHex: colorHex)
     }
     
     func updateCategory(_ category: Category, name: String, colorHex: String) {
-        guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
+        guard let entity = fetchCategoryEntity(by: category.id) else { return }
         
-        categories[index].name = name
-        categories[index].colorHex = colorHex
-        saveCategories()
+        entity.name = name
+        entity.colorHex = colorHex
+        
+        saveContextAndRefresh()
     }
     
     func deleteCategory(_ category: Category) {
         // Don't delete default categories
-        guard !category.isDefault else { return }
+        guard !category.isDefault, let entity = fetchCategoryEntity(by: category.id) else { return }
         
-        categories.removeAll { $0.id == category.id }
-        saveCategories()
+        coreDataStack.context.delete(entity)
+        saveContextAndRefresh()
+        updateSortOrder()
     }
     
     func deleteCategory(at index: Int) {
         guard index < categories.count else { return }
-        let category = categories[index]
-        
-        // Don't delete default categories
-        guard !category.isDefault else { return }
-        
-        categories.remove(at: index)
-        saveCategories()
+        deleteCategory(categories[index])
     }
     
     // Query
@@ -121,8 +142,16 @@ final class CategoryService {
     // Reset
     
     func resetToDefaults() {
-        categories = defaultCategories
-        saveCategories()
+        let request: NSFetchRequest<NSFetchRequestResult> = CategoryEntity.fetchRequest()
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        
+        do {
+            try coreDataStack.context.execute(batchDelete)
+        } catch {
+            print("Failed to reset categories: \(error)")
+        }
+        
+        seedDefaultCategories()
     }
     
     // Reorder
@@ -132,7 +161,69 @@ final class CategoryService {
         
         let category = categories.remove(at: sourceIndex)
         categories.insert(category, at: destinationIndex)
-        saveCategories()
+        
+        updateSortOrder()
+        notifyUpdate()
+    }
+    
+    private func updateSortOrder() {
+        for (index, category) in categories.enumerated() {
+            guard let entity = fetchCategoryEntity(by: category.id) else { continue }
+            entity.sortOrder = Int32(index)
+        }
+        coreDataStack.save()
+        refreshCategories()
+    }
+    
+    // Helpers
+    
+    private func migrateLegacyCategories() -> Bool {
+        guard let data = UserDefaults.standard.data(forKey: legacyUserDefaultsKey),
+              let legacyCategories = try? JSONDecoder().decode([Category].self, from: data),
+              !legacyCategories.isEmpty else {
+            return false
+        }
+        
+        persist(categories: legacyCategories)
+        UserDefaults.standard.removeObject(forKey: legacyUserDefaultsKey)
+        return true
+    }
+    
+    private func persist(categories: [Category]) {
+        for (index, category) in categories.enumerated() {
+            let entity = CategoryEntity(context: coreDataStack.context)
+            entity.id = category.id
+            entity.name = category.name
+            entity.colorHex = category.colorHex
+            entity.isDefault = category.isDefault
+            entity.sortOrder = Int32(index)
+        }
+        
+        coreDataStack.save()
+        refreshCategories()
+        notifyUpdate()
+    }
+    
+    private func fetchCategoryEntity(by id: UUID) -> CategoryEntity? {
+        let request: NSFetchRequest<CategoryEntity> = CategoryEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        
+        do {
+            return try coreDataStack.context.fetch(request).first
+        } catch {
+            print("Failed to fetch category: \(error)")
+            return nil
+        }
+    }
+}
+
+private extension Category {
+    init(from entity: CategoryEntity) {
+        self.id = entity.id ?? UUID()
+        self.name = entity.name ?? "Untitled"
+        self.colorHex = entity.colorHex ?? "#007AFF"
+        self.isDefault = entity.isDefault
     }
 }
 

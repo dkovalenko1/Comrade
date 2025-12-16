@@ -4,20 +4,16 @@ import XCTest
 final class CategoryServiceTests: XCTestCase {
     
     var categoryService: CategoryService!
-    var userDefaults: UserDefaults!
+    var coreDataStack: CoreDataStack!
     
     override func setUp() {
         super.setUp()
-        // Use a temporary suite for testing
-        userDefaults = UserDefaults(suiteName: "TestDefaults")
-        userDefaults.removePersistentDomain(forName: "TestDefaults")
-        
-        categoryService = CategoryService(userDefaults: userDefaults)
+        coreDataStack = CoreDataStack(inMemory: true)
+        categoryService = CategoryService(coreDataStack: coreDataStack)
     }
     
     override func tearDown() {
-        userDefaults.removePersistentDomain(forName: "TestDefaults")
-        userDefaults = nil
+        coreDataStack = nil
         categoryService = nil
         super.tearDown()
     }
