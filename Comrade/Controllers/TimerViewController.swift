@@ -90,6 +90,7 @@ class TimerViewController: UIViewController {
         modeToggleButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.2)
         modeToggleButton.setTitleColor(.systemRed, for: .normal)
         modeToggleButton.layer.cornerRadius = 20
+        modeToggleButton.accessibilityIdentifier = "modeToggleButton"
         modeToggleButton.addTarget(self, action: #selector(modeToggleTapped), for: .touchUpInside)
         view.addSubview(modeToggleButton)
 
@@ -99,6 +100,7 @@ class TimerViewController: UIViewController {
         templateButton.backgroundColor = .systemRed
         templateButton.setTitleColor(.white, for: .normal)
         templateButton.layer.cornerRadius = 20
+        templateButton.accessibilityIdentifier = "templateButton"
         templateButton.addTarget(self, action: #selector(templateTapped), for: .touchUpInside)
         view.addSubview(templateButton)
 
@@ -243,6 +245,7 @@ class TimerViewController: UIViewController {
         playButton.layer.shadowOpacity = 0.3
         playButton.layer.shadowOffset = CGSize(width: 0, height: 4)
         playButton.layer.shadowRadius = 8
+        playButton.accessibilityIdentifier = "playButton"
         playButton.addTarget(self, action: #selector(playTapped), for: .touchUpInside)
         view.addSubview(playButton)
 
@@ -255,6 +258,7 @@ class TimerViewController: UIViewController {
         stopButton.layer.shadowOpacity = 0.1
         stopButton.layer.shadowOffset = CGSize(width: 0, height: 2)
         stopButton.layer.shadowRadius = 4
+        stopButton.accessibilityIdentifier = "stopButton"
         stopButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
         stopButton.isEnabled = false
         stopButton.alpha = 0.4

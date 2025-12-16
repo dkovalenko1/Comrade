@@ -59,7 +59,7 @@ final class TasksViewModelTests: XCTestCase {
     }
     
     func testToggleTaskCompletion() {
-        let task = taskService.createTask(name: "Task to Complete")
+        _ = taskService.createTask(name: "Task to Complete")
         viewModel.loadTasks()
         
         // Find where the task is

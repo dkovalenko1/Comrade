@@ -2,12 +2,12 @@ import Foundation
 import UserNotifications
 
 protocol NotificationCenterProtocol: AnyObject {
-    func requestAuthorization(options: UNAuthorizationOptions, completionHandler: @escaping (Bool, Error?) -> Void)
-    func getNotificationSettings(completionHandler: @escaping (UNNotificationSettings) -> Void)
-    func add(_ request: UNNotificationRequest, withCompletionHandler completionHandler: ((Error?) -> Void)?)
+    func requestAuthorization(options: UNAuthorizationOptions, completionHandler: @escaping @Sendable (Bool, Error?) -> Void)
+    func getNotificationSettings(completionHandler: @escaping @Sendable (UNNotificationSettings) -> Void)
+    func add(_ request: UNNotificationRequest, withCompletionHandler completionHandler: (@Sendable (Error?) -> Void)?)
     func removePendingNotificationRequests(withIdentifiers identifiers: [String])
     func removeAllPendingNotificationRequests()
-    func getPendingNotificationRequests(completionHandler: @escaping ([UNNotificationRequest]) -> Void)
+    func getPendingNotificationRequests(completionHandler: @escaping @Sendable ([UNNotificationRequest]) -> Void)
     var delegate: UNUserNotificationCenterDelegate? { get set }
 }
 

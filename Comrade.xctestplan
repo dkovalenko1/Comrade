@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "935B0875-F2FF-4E65-BEF7-AA811362605A",
+      "id" : "377E1400-B975-4938-90C5-E0E75C9D45BF",
       "name" : "Test Scheme Action",
       "options" : {
 
@@ -12,7 +12,7 @@
     "performanceAntipatternCheckerEnabled" : true,
     "targetForVariableExpansion" : {
       "containerPath" : "container:Comrade.xcodeproj",
-      "identifier" : "637FA80E2EE351F200DE234C",
+      "identifier" : "63D66FE22EF1DE50004F83BF",
       "name" : "Comrade"
     }
   },
@@ -21,7 +21,7 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Comrade.xcodeproj",
-        "identifier" : "637FA8242EE351F400DE234C",
+        "identifier" : "63D66FFB2EF1DE51004F83BF",
         "name" : "ComradeTests"
       }
     },
@@ -29,7 +29,7 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Comrade.xcodeproj",
-        "identifier" : "637FA82E2EE351F400DE234C",
+        "identifier" : "63D670052EF1DE51004F83BF",
         "name" : "ComradeUITests"
       }
     }

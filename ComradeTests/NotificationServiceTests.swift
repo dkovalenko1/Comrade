@@ -1,5 +1,6 @@
 import XCTest
 import UserNotifications
+
 @testable import Comrade
 
 class MockNotificationCenter: NotificationCenterProtocol {

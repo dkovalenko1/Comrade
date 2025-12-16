@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "637FA80E2EE351F200DE234C"
+               BlueprintIdentifier = "63D66FE22EF1DE50004F83BF"
                BuildableName = "Comrade.app"
                BlueprintName = "Comrade"
                ReferencedContainer = "container:Comrade.xcodeproj">
@@ -40,7 +40,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "637FA8242EE351F400DE234C"
+               BlueprintIdentifier = "63D66FFB2EF1DE51004F83BF"
                BuildableName = "ComradeTests.xctest"
                BlueprintName = "ComradeTests"
                ReferencedContainer = "container:Comrade.xcodeproj">
@@ -51,7 +51,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "637FA82E2EE351F400DE234C"
+               BlueprintIdentifier = "63D670052EF1DE51004F83BF"
                BuildableName = "ComradeUITests.xctest"
                BlueprintName = "ComradeUITests"
                ReferencedContainer = "container:Comrade.xcodeproj">
@@ -73,7 +73,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "637FA80E2EE351F200DE234C"
+            BlueprintIdentifier = "63D66FE22EF1DE50004F83BF"
             BuildableName = "Comrade.app"
             BlueprintName = "Comrade"
             ReferencedContainer = "container:Comrade.xcodeproj">
@@ -90,7 +90,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "637FA80E2EE351F200DE234C"
+            BlueprintIdentifier = "63D66FE22EF1DE50004F83BF"
             BuildableName = "Comrade.app"
             BlueprintName = "Comrade"
             ReferencedContainer = "container:Comrade.xcodeproj">

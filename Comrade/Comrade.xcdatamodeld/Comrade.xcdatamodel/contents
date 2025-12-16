@@ -49,7 +49,6 @@
         <attribute name="wasCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="session" inverseEntity="TaskEntity"/>
     </entity>
-</model>
     <entity name="PomodoroTemplate" representedClassName="PomodoroTemplate" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="cyclesBeforeLongBreak" optional="YES" attributeType="Integer 16" defaultValueString="4" usesScalarValueType="YES"/>

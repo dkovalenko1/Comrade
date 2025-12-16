@@ -319,7 +319,7 @@ final class AchievementsService {
         case "inbox_zero":
             return activeTasksCount() == 0 ? 1 : 0
         case "deadline_hero":
-            return task.map { completedBeforeDeadline($0) ? 1.0 : 0.0 } ?? 0я
+            return task.map { completedBeforeDeadline($0) ? 1.0 : 0.0 } ?? 0
         case "streak_5":
             return Double(consecutiveDaysWith(minSessionsPerDay: 3))
         default:
