@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  Comrade
-//
-//  Created by david on 05.12.2025.
-//
-
 import UIKit
 
 @main

@@ -14,6 +14,7 @@
 		E15737DD2EF02E36003CBA9B /* TaskServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737D82EF02E36003CBA9B /* TaskServiceTests.swift */; };
 		E15737E12EF0317B003CBA9B /* TasksViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737E02EF0317B003CBA9B /* TasksViewModelTests.swift */; };
 		E15737E32EF0317B003CBA9B /* TaskEditorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15737DF2EF0317B003CBA9B /* TaskEditorViewModelTests.swift */; };
+		8469081D2EEF7591009983F6 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8469081C2EEF7591009983F6 /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8469081D2EEF7591009983F6 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +149,7 @@
 			);
 			name = Comrade;
 			packageProductDependencies = (
+				8469081C2EEF7591009983F6 /* SnapKit */,
 			);
 			productName = Comrade;
 			productReference = 637FA80F2EE351F200DE234C /* Comrade.app */;
@@ -226,6 +229,9 @@
 			);
 			mainGroup = 637FA8062EE351F200DE234C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 637FA8102EE351F200DE234C /* Products */;
 			projectDirPath = "";
@@ -614,6 +620,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8469081C2EEF7591009983F6 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8469081B2EEF7591009983F6 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 637FA8072EE351F200DE234C /* Project object */;
 }

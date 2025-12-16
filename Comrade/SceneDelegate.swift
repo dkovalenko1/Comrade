@@ -14,16 +14,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        
+
         let window = UIWindow(windowScene: windowScene)
-        
-        // Create TasksViewController with navigation
-        let tasksVC = TasksViewController()
-        let navigationController = UINavigationController(rootViewController: tasksVC)
-        
-        window.rootViewController = navigationController
+
+        // Use MainTabBarController to show all views
+        let mainTabBarController = MainTabBarController()
+
+        window.rootViewController = mainTabBarController
         window.makeKeyAndVisible()
-        
+
         self.window = window
     }
 

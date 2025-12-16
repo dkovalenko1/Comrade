@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class DependencyChainViewController: UIViewController {
     
@@ -75,7 +76,6 @@ final class DependencyChainViewController: UIViewController {
         view.isHidden = true
         
         let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.spacing = 12
@@ -84,9 +84,9 @@ final class DependencyChainViewController: UIViewController {
         imageView.image = UIImage(systemName: "arrow.triangle.branch")
         imageView.tintColor = .systemGray3
         imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        imageView.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 60, height: 60))
+        }
         
         let titleLabel = UILabel()
         titleLabel.text = "No Dependencies"
@@ -105,12 +105,11 @@ final class DependencyChainViewController: UIViewController {
         stackView.addArrangedSubview(subtitleLabel)
         
         view.addSubview(stackView)
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 32),
-            stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -32)
-        ])
+        stackView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.leading.greaterThanOrEqualToSuperview().offset(32)
+            make.trailing.lessThanOrEqualToSuperview().inset(32)
+        }
         
         return view
     }()
@@ -151,44 +150,52 @@ final class DependencyChainViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(emptyStateView)
         
-        NSLayoutConstraint.activate([
-            headerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            rootTaskCard.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 16),
-            rootTaskCard.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
-            rootTaskCard.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -16),
-            rootTaskCard.bottomAnchor.constraint(equalTo: headerView.bottomAnchor, constant: -16),
-            
-            rootTaskColorDot.topAnchor.constraint(equalTo: rootTaskCard.topAnchor, constant: 16),
-            rootTaskColorDot.leadingAnchor.constraint(equalTo: rootTaskCard.leadingAnchor, constant: 16),
-            rootTaskColorDot.widthAnchor.constraint(equalToConstant: 12),
-            rootTaskColorDot.heightAnchor.constraint(equalToConstant: 12),
-            
-            rootTaskLabel.topAnchor.constraint(equalTo: rootTaskCard.topAnchor, constant: 14),
-            rootTaskLabel.leadingAnchor.constraint(equalTo: rootTaskColorDot.trailingAnchor, constant: 12),
-            rootTaskLabel.trailingAnchor.constraint(equalTo: rootTaskCard.trailingAnchor, constant: -16),
-            
-            statusLabel.topAnchor.constraint(equalTo: rootTaskLabel.bottomAnchor, constant: 4),
-            statusLabel.leadingAnchor.constraint(equalTo: rootTaskLabel.leadingAnchor),
-            statusLabel.trailingAnchor.constraint(equalTo: rootTaskLabel.trailingAnchor),
-            statusLabel.bottomAnchor.constraint(equalTo: rootTaskCard.bottomAnchor, constant: -14),
-            
-            addButton.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 8),
-            addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            addButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            tableView.topAnchor.constraint(equalTo: addButton.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            emptyStateView.topAnchor.constraint(equalTo: addButton.bottomAnchor, constant: 40),
-            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            emptyStateView.heightAnchor.constraint(equalToConstant: 200)
-        ])
+        headerView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+        }
+        
+        rootTaskCard.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(16)
+        }
+        
+        rootTaskColorDot.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.size.equalTo(CGSize(width: 12, height: 12))
+        }
+        
+        rootTaskLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(14)
+            make.leading.equalTo(rootTaskColorDot.snp.trailing).offset(12)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        statusLabel.snp.makeConstraints { make in
+            make.top.equalTo(rootTaskLabel.snp.bottom).offset(4)
+            make.leading.trailing.equalTo(rootTaskLabel)
+            make.bottom.equalToSuperview().inset(14)
+        }
+        
+        addButton.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.height.equalTo(44)
+        }
+        
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(addButton.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        emptyStateView.snp.makeConstraints { make in
+            make.top.equalTo(addButton.snp.bottom).offset(40)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(200)
+        }
     }
     
     private func setupNavigation() {
@@ -436,7 +443,7 @@ final class DependencyCell: UITableViewCell {
         return button
     }()
     
-    private var levelIndicatorWidthConstraint: NSLayoutConstraint?
+    private var levelIndicatorWidthConstraint: Constraint?
     
     // Init
     
@@ -457,7 +464,7 @@ final class DependencyCell: UITableViewCell {
         statusIcon.image = nil
         completeButton.isHidden = true
         onCompleteTapped = nil
-        levelIndicatorWidthConstraint?.constant = 0
+        levelIndicatorWidthConstraint?.update(offset: 0)
     }
     
     // Setup
@@ -469,33 +476,34 @@ final class DependencyCell: UITableViewCell {
         contentView.addSubview(statusIcon)
         contentView.addSubview(completeButton)
         
-        levelIndicatorWidthConstraint = levelIndicatorView.widthAnchor.constraint(equalToConstant: 0)
-        levelIndicatorWidthConstraint?.isActive = true
+        levelIndicatorView.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+            levelIndicatorWidthConstraint = make.width.equalTo(0).constraint
+        }
         
-        NSLayoutConstraint.activate([
-            levelIndicatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            levelIndicatorView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            levelIndicatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            
-            colorDot.leadingAnchor.constraint(equalTo: levelIndicatorView.trailingAnchor, constant: 16),
-            colorDot.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            colorDot.widthAnchor.constraint(equalToConstant: 10),
-            colorDot.heightAnchor.constraint(equalToConstant: 10),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: colorDot.trailingAnchor, constant: 12),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: statusIcon.leadingAnchor, constant: -8),
-            
-            statusIcon.trailingAnchor.constraint(equalTo: completeButton.leadingAnchor, constant: -8),
-            statusIcon.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            statusIcon.widthAnchor.constraint(equalToConstant: 20),
-            statusIcon.heightAnchor.constraint(equalToConstant: 20),
-            
-            completeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            completeButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            completeButton.widthAnchor.constraint(equalToConstant: 44),
-            completeButton.heightAnchor.constraint(equalToConstant: 44)
-        ])
+        colorDot.snp.makeConstraints { make in
+            make.leading.equalTo(levelIndicatorView.snp.trailing).offset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 10, height: 10))
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(colorDot.snp.trailing).offset(12)
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(statusIcon.snp.leading).offset(-8)
+        }
+        
+        statusIcon.snp.makeConstraints { make in
+            make.trailing.equalTo(completeButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 20, height: 20))
+        }
+        
+        completeButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 44, height: 44))
+        }
     }
     
     // Configure
@@ -505,7 +513,7 @@ final class DependencyCell: UITableViewCell {
         
         // Level indentation (16pt per level)
         let indentation = CGFloat((node.level - 1) * 16)
-        levelIndicatorWidthConstraint?.constant = indentation
+        levelIndicatorWidthConstraint?.update(offset: indentation)
         
         // Category color
         if let colorHex = node.categoryColorHex {
@@ -581,12 +589,9 @@ final class DependencyPickerViewController: UIViewController {
         )
         
         view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
     
     @objc private func cancelTapped() {

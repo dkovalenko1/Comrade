@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class CategoryManagerViewController: UIViewController {
     
@@ -10,7 +11,6 @@ final class CategoryManagerViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let table = UITableView(frame: .zero, style: .insetGrouped)
-        table.translatesAutoresizingMaskIntoConstraints = false
         table.delegate = self
         table.dataSource = self
         table.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.identifier)
@@ -20,7 +20,6 @@ final class CategoryManagerViewController: UIViewController {
     
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
         
         let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
         let image = UIImage(systemName: "plus", withConfiguration: config)
@@ -55,17 +54,15 @@ final class CategoryManagerViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(addButton)
         
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            addButton.widthAnchor.constraint(equalToConstant: 56),
-            addButton.heightAnchor.constraint(equalToConstant: 56),
-            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        ])
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        addButton.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 56, height: 56))
+            make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
     }
     
     private func setupNavigation() {
@@ -302,21 +299,18 @@ final class CategoryCell: UITableViewCell {
     
     private let colorDot: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 8
         return view
     }()
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 17)
         return label
     }()
     
     private let defaultBadge: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Default"
         label.font = .systemFont(ofSize: 12)
         label.textColor = .secondaryLabel
@@ -338,18 +332,21 @@ final class CategoryCell: UITableViewCell {
         contentView.addSubview(nameLabel)
         contentView.addSubview(defaultBadge)
         
-        NSLayoutConstraint.activate([
-            colorDot.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            colorDot.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            colorDot.widthAnchor.constraint(equalToConstant: 16),
-            colorDot.heightAnchor.constraint(equalToConstant: 16),
-            
-            nameLabel.leadingAnchor.constraint(equalTo: colorDot.trailingAnchor, constant: 12),
-            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            
-            defaultBadge.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            defaultBadge.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
+        colorDot.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 16, height: 16))
+        }
+        
+        nameLabel.snp.makeConstraints { make in
+            make.leading.equalTo(colorDot.snp.trailing).offset(12)
+            make.centerY.equalToSuperview()
+        }
+        
+        defaultBadge.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(8)
+            make.centerY.equalToSuperview()
+        }
     }
     
     func configure(with category: Category) {

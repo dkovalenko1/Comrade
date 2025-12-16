@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class TaskCell: UITableViewCell {
     
@@ -13,14 +14,12 @@ final class TaskCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemGroupedBackground
         return view
     }()
     
     private lazy var checkboxButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(checkboxTapped), for: .touchUpInside)
         button.accessibilityIdentifier = "task_checkbox"
         return button
@@ -28,7 +27,6 @@ final class TaskCell: UITableViewCell {
     
     private let contentStackView: UIStackView = {
         let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
         stack.spacing = 4
         stack.alignment = .leading
@@ -37,7 +35,6 @@ final class TaskCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.textColor = .label
         label.numberOfLines = 2
@@ -46,13 +43,11 @@ final class TaskCell: UITableViewCell {
     
     private let tagsContainerView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let tagsStackView: UIStackView = {
         let stack = UIStackView()
-        stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
         stack.spacing = 6
         stack.alignment = .center
@@ -61,7 +56,6 @@ final class TaskCell: UITableViewCell {
     
     private let categoryDot: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 4
         view.backgroundColor = .systemGray4
         return view
@@ -69,7 +63,6 @@ final class TaskCell: UITableViewCell {
     
     private let deadlineLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .regular)
         label.textColor = .secondaryLabel
         return label
@@ -77,7 +70,6 @@ final class TaskCell: UITableViewCell {
     
     private let priorityIndicator: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 3
         view.isHidden = true
         return view
@@ -85,7 +77,6 @@ final class TaskCell: UITableViewCell {
     
     private lazy var editButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .regular)
         button.setImage(UIImage(systemName: "square.and.pencil", withConfiguration: config), for: .normal)
         button.tintColor = .systemGray3
@@ -95,7 +86,6 @@ final class TaskCell: UITableViewCell {
     
     private let separatorView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemGray5
         return view
     }()
@@ -103,7 +93,7 @@ final class TaskCell: UITableViewCell {
     // Properties
     
     private var isTaskCompleted = false
-    private var tagsHeightConstraint: NSLayoutConstraint?
+    private var tagsHeightConstraint: Constraint?
     
     var isLastInSection = false {
         didSet {
@@ -165,52 +155,60 @@ final class TaskCell: UITableViewCell {
         
         tagsContainerView.addSubview(tagsStackView)
         
-        tagsHeightConstraint = tagsContainerView.heightAnchor.constraint(equalToConstant: 0)
-        tagsHeightConstraint?.isActive = true
+        containerView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
+        }
         
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            
-            checkboxButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            checkboxButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            checkboxButton.widthAnchor.constraint(equalToConstant: 28),
-            checkboxButton.heightAnchor.constraint(equalToConstant: 28),
-            
-            categoryDot.leadingAnchor.constraint(equalTo: checkboxButton.trailingAnchor, constant: 12),
-            categoryDot.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 18),
-            categoryDot.widthAnchor.constraint(equalToConstant: 8),
-            categoryDot.heightAnchor.constraint(equalToConstant: 8),
-            
-            contentStackView.leadingAnchor.constraint(equalTo: categoryDot.trailingAnchor, constant: 10),
-            contentStackView.trailingAnchor.constraint(equalTo: editButton.leadingAnchor, constant: -8),
-            contentStackView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
-            contentStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
-            
-            tagsContainerView.leadingAnchor.constraint(equalTo: contentStackView.leadingAnchor),
-            tagsContainerView.trailingAnchor.constraint(equalTo: contentStackView.trailingAnchor),
-            
-            tagsStackView.topAnchor.constraint(equalTo: tagsContainerView.topAnchor),
-            tagsStackView.leadingAnchor.constraint(equalTo: tagsContainerView.leadingAnchor),
-            tagsStackView.bottomAnchor.constraint(equalTo: tagsContainerView.bottomAnchor),
-            
-            editButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            editButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            editButton.widthAnchor.constraint(equalToConstant: 44),
-            editButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            priorityIndicator.trailingAnchor.constraint(equalTo: editButton.leadingAnchor, constant: -8),
-            priorityIndicator.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            priorityIndicator.widthAnchor.constraint(equalToConstant: 6),
-            priorityIndicator.heightAnchor.constraint(equalToConstant: 6),
-            
-            separatorView.leadingAnchor.constraint(equalTo: contentStackView.leadingAnchor),
-            separatorView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            separatorView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1),
-        ])
+        checkboxButton.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(12)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 28, height: 28))
+        }
+        
+        categoryDot.snp.makeConstraints { make in
+            make.leading.equalTo(checkboxButton.snp.trailing).offset(12)
+            make.top.equalToSuperview().offset(18)
+            make.size.equalTo(CGSize(width: 8, height: 8))
+        }
+        
+        contentStackView.snp.makeConstraints { make in
+            make.leading.equalTo(categoryDot.snp.trailing).offset(10)
+            make.trailing.equalTo(editButton.snp.leading).offset(-8)
+            make.top.equalToSuperview().offset(12)
+            make.bottom.equalToSuperview().inset(12)
+        }
+        
+        tagsContainerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            tagsHeightConstraint = make.height.equalTo(0).constraint
+        }
+        
+        tagsStackView.snp.makeConstraints { make in
+            make.top.leading.bottom.equalToSuperview()
+            make.trailing.lessThanOrEqualToSuperview()
+        }
+        
+        editButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 44, height: 44))
+        }
+        
+        priorityIndicator.snp.makeConstraints { make in
+            make.trailing.equalTo(editButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 6, height: 6))
+        }
+        
+        separatorView.snp.makeConstraints { make in
+            make.leading.equalTo(contentStackView)
+            make.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+            make.height.equalTo(1)
+        }
     }
     
     private func updateCorners() {
@@ -281,13 +279,13 @@ final class TaskCell: UITableViewCell {
         clearTags()
         
         guard let tags = task.tags as? Set<TagEntity>, !tags.isEmpty else {
-            tagsHeightConstraint?.constant = 0
+            tagsHeightConstraint?.update(offset: 0)
             tagsContainerView.isHidden = true
             return
         }
         
         tagsContainerView.isHidden = false
-        tagsHeightConstraint?.constant = 20
+        tagsHeightConstraint?.update(offset: 20)
         
         let sortedTags = Array(tags).sorted { ($0.name ?? "") < ($1.name ?? "") }
         let maxVisibleTags = 3
@@ -309,24 +307,22 @@ final class TaskCell: UITableViewCell {
     
     private func createTagView(for tag: TagEntity) -> UIView {
         let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
         container.backgroundColor = UIColor(hex: tag.colorHex ?? "#888888").withAlphaComponent(0.2)
         container.layer.cornerRadius = 4
         
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = tag.name
         label.font = .systemFont(ofSize: 10, weight: .medium)
         label.textColor = UIColor(hex: tag.colorHex ?? "#888888")
         
         container.addSubview(label)
         
-        NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: container.topAnchor, constant: 2),
-            label.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -2),
-            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 6),
-            label.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -6)
-        ])
+        label.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(2)
+            make.bottom.equalToSuperview().inset(2)
+            make.leading.equalToSuperview().offset(6)
+            make.trailing.equalToSuperview().inset(6)
+        }
         
         return container
     }

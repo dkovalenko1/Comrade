@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class TaskEditorViewController: UIViewController {
     
@@ -229,45 +230,53 @@ final class TaskEditorViewController: UIViewController {
         contentView.addSubview(reminderContainer)
         contentView.addSubview(otherContainer)
         
-        NSLayoutConstraint.activate([
-            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            closeButton.widthAnchor.constraint(equalToConstant: 30),
-            closeButton.heightAnchor.constraint(equalToConstant: 30),
-            
-            saveButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            saveButton.widthAnchor.constraint(equalToConstant: 30),
-            saveButton.heightAnchor.constraint(equalToConstant: 30),
-            
-            scrollView.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: 16),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            mainFieldsContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            mainFieldsContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            mainFieldsContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            
-            deadlineContainer.topAnchor.constraint(equalTo: mainFieldsContainer.bottomAnchor, constant: 24),
-            deadlineContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            deadlineContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            
-            reminderContainer.topAnchor.constraint(equalTo: deadlineContainer.bottomAnchor, constant: 24),
-            reminderContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            reminderContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            
-            otherContainer.topAnchor.constraint(equalTo: reminderContainer.bottomAnchor, constant: 16),
-            otherContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            otherContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            otherContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32),
-        ])
+        closeButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.size.equalTo(CGSize(width: 30, height: 30))
+        }
+        
+        saveButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.size.equalTo(CGSize(width: 30, height: 30))
+        }
+        
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(closeButton.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView)
+        }
+        
+        mainFieldsContainer.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        deadlineContainer.snp.makeConstraints { make in
+            make.top.equalTo(mainFieldsContainer.snp.bottom).offset(24)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        reminderContainer.snp.makeConstraints { make in
+            make.top.equalTo(deadlineContainer.snp.bottom).offset(24)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        otherContainer.snp.makeConstraints { make in
+            make.top.equalTo(reminderContainer.snp.bottom).offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(32)
+        }
     }
     
     private func createContainer() -> UIView {
@@ -296,51 +305,63 @@ final class TaskEditorViewController: UIViewController {
         mainFieldsContainer.addSubview(divider3)
         mainFieldsContainer.addSubview(divider4)
         
-        NSLayoutConstraint.activate([
-            nameTextField.topAnchor.constraint(equalTo: mainFieldsContainer.topAnchor, constant: 16),
-            nameTextField.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor, constant: 16),
-            nameTextField.trailingAnchor.constraint(equalTo: colorDot.leadingAnchor, constant: -12),
-            
-            colorDot.centerYAnchor.constraint(equalTo: nameTextField.centerYAnchor),
-            colorDot.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor, constant: -16),
-            colorDot.widthAnchor.constraint(equalToConstant: 20),
-            colorDot.heightAnchor.constraint(equalToConstant: 20),
-            
-            descriptionTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
-            descriptionTextField.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor, constant: 16),
-            descriptionTextField.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor, constant: -16),
-            
-            divider1.topAnchor.constraint(equalTo: descriptionTextField.bottomAnchor, constant: 16),
-            divider1.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor, constant: 16),
-            divider1.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            divider1.heightAnchor.constraint(equalToConstant: 1),
-            
-            categoryRow.topAnchor.constraint(equalTo: divider1.bottomAnchor),
-            categoryRow.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor),
-            categoryRow.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            categoryRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider2.topAnchor.constraint(equalTo: categoryRow.bottomAnchor),
-            divider2.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor, constant: 16),
-            divider2.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            divider2.heightAnchor.constraint(equalToConstant: 1),
-            
-            tagsRow.topAnchor.constraint(equalTo: divider2.bottomAnchor),
-            tagsRow.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor),
-            tagsRow.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            tagsRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider3.topAnchor.constraint(equalTo: tagsRow.bottomAnchor),
-            divider3.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor, constant: 16),
-            divider3.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            divider3.heightAnchor.constraint(equalToConstant: 1),
-            
-            priorityRow.topAnchor.constraint(equalTo: divider3.bottomAnchor),
-            priorityRow.leadingAnchor.constraint(equalTo: mainFieldsContainer.leadingAnchor),
-            priorityRow.trailingAnchor.constraint(equalTo: mainFieldsContainer.trailingAnchor),
-            priorityRow.heightAnchor.constraint(equalToConstant: 48),
-            priorityRow.bottomAnchor.constraint(equalTo: mainFieldsContainer.bottomAnchor),
-        ])
+        nameTextField.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalTo(colorDot.snp.leading).offset(-12)
+        }
+        
+        colorDot.snp.makeConstraints { make in
+            make.centerY.equalTo(nameTextField)
+            make.trailing.equalToSuperview().inset(16)
+            make.size.equalTo(CGSize(width: 20, height: 20))
+        }
+        
+        descriptionTextField.snp.makeConstraints { make in
+            make.top.equalTo(nameTextField.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
+        
+        divider1.snp.makeConstraints { make in
+            make.top.equalTo(descriptionTextField.snp.bottom).offset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        categoryRow.snp.makeConstraints { make in
+            make.top.equalTo(divider1.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider2.snp.makeConstraints { make in
+            make.top.equalTo(categoryRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        tagsRow.snp.makeConstraints { make in
+            make.top.equalTo(divider2.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider3.snp.makeConstraints { make in
+            make.top.equalTo(tagsRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        priorityRow.snp.makeConstraints { make in
+            make.top.equalTo(divider3.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+            make.bottom.equalToSuperview()
+        }
     }
     
     private func setupDeadlineContainer() {
@@ -358,41 +379,48 @@ final class TaskEditorViewController: UIViewController {
         deadlineContainer.addSubview(divider1)
         deadlineContainer.addSubview(divider2)
         
-        NSLayoutConstraint.activate([
-            deadlineSectionLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
-            deadlineSectionLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            
-            headerView.topAnchor.constraint(equalTo: deadlineContainer.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 44),
-            
-            dateRow.topAnchor.constraint(equalTo: headerView.bottomAnchor),
-            dateRow.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor),
-            dateRow.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            dateRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider1.topAnchor.constraint(equalTo: dateRow.bottomAnchor),
-            divider1.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor, constant: 16),
-            divider1.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            divider1.heightAnchor.constraint(equalToConstant: 1),
-            
-            timeRow.topAnchor.constraint(equalTo: divider1.bottomAnchor),
-            timeRow.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor),
-            timeRow.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            timeRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider2.topAnchor.constraint(equalTo: timeRow.bottomAnchor),
-            divider2.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor, constant: 16),
-            divider2.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            divider2.heightAnchor.constraint(equalToConstant: 1),
-            
-            allDayRow.topAnchor.constraint(equalTo: divider2.bottomAnchor),
-            allDayRow.leadingAnchor.constraint(equalTo: deadlineContainer.leadingAnchor),
-            allDayRow.trailingAnchor.constraint(equalTo: deadlineContainer.trailingAnchor),
-            allDayRow.heightAnchor.constraint(equalToConstant: 48),
-            allDayRow.bottomAnchor.constraint(equalTo: deadlineContainer.bottomAnchor),
-        ])
+        deadlineSectionLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+        }
+        
+        headerView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(44)
+        }
+        
+        dateRow.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider1.snp.makeConstraints { make in
+            make.top.equalTo(dateRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        timeRow.snp.makeConstraints { make in
+            make.top.equalTo(divider1.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider2.snp.makeConstraints { make in
+            make.top.equalTo(timeRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        allDayRow.snp.makeConstraints { make in
+            make.top.equalTo(divider2.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+            make.bottom.equalToSuperview()
+        }
         
         timeRow.isHidden = true
     }
@@ -412,41 +440,48 @@ final class TaskEditorViewController: UIViewController {
         reminderContainer.addSubview(divider1)
         reminderContainer.addSubview(divider2)
         
-        NSLayoutConstraint.activate([
-            reminderSectionLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 16),
-            reminderSectionLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor),
-            
-            headerView.topAnchor.constraint(equalTo: reminderContainer.topAnchor),
-            headerView.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor),
-            headerView.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            headerView.heightAnchor.constraint(equalToConstant: 44),
-            
-            reminderRow.topAnchor.constraint(equalTo: headerView.bottomAnchor),
-            reminderRow.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor),
-            reminderRow.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            reminderRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider1.topAnchor.constraint(equalTo: reminderRow.bottomAnchor),
-            divider1.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor, constant: 16),
-            divider1.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            divider1.heightAnchor.constraint(equalToConstant: 1),
-            
-            relativeReminderRow.topAnchor.constraint(equalTo: divider1.bottomAnchor),
-            relativeReminderRow.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor),
-            relativeReminderRow.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            relativeReminderRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider2.topAnchor.constraint(equalTo: relativeReminderRow.bottomAnchor),
-            divider2.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor, constant: 16),
-            divider2.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            divider2.heightAnchor.constraint(equalToConstant: 1),
-            
-            absoluteReminderRow.topAnchor.constraint(equalTo: divider2.bottomAnchor),
-            absoluteReminderRow.leadingAnchor.constraint(equalTo: reminderContainer.leadingAnchor),
-            absoluteReminderRow.trailingAnchor.constraint(equalTo: reminderContainer.trailingAnchor),
-            absoluteReminderRow.heightAnchor.constraint(equalToConstant: 48),
-            absoluteReminderRow.bottomAnchor.constraint(equalTo: reminderContainer.bottomAnchor),
-        ])
+        reminderSectionLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+        }
+        
+        headerView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(44)
+        }
+        
+        reminderRow.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider1.snp.makeConstraints { make in
+            make.top.equalTo(reminderRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        relativeReminderRow.snp.makeConstraints { make in
+            make.top.equalTo(divider1.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider2.snp.makeConstraints { make in
+            make.top.equalTo(relativeReminderRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        absoluteReminderRow.snp.makeConstraints { make in
+            make.top.equalTo(divider2.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+            make.bottom.equalToSuperview()
+        }
     }
     
     private func setupOtherContainer() {
@@ -456,23 +491,24 @@ final class TaskEditorViewController: UIViewController {
         let divider = createDivider()
         otherContainer.addSubview(divider)
         
-        NSLayoutConstraint.activate([
-            dependenciesRow.topAnchor.constraint(equalTo: otherContainer.topAnchor),
-            dependenciesRow.leadingAnchor.constraint(equalTo: otherContainer.leadingAnchor),
-            dependenciesRow.trailingAnchor.constraint(equalTo: otherContainer.trailingAnchor),
-            dependenciesRow.heightAnchor.constraint(equalToConstant: 48),
-            
-            divider.topAnchor.constraint(equalTo: dependenciesRow.bottomAnchor),
-            divider.leadingAnchor.constraint(equalTo: otherContainer.leadingAnchor, constant: 16),
-            divider.trailingAnchor.constraint(equalTo: otherContainer.trailingAnchor),
-            divider.heightAnchor.constraint(equalToConstant: 1),
-            
-            addPhotoRow.topAnchor.constraint(equalTo: divider.bottomAnchor),
-            addPhotoRow.leadingAnchor.constraint(equalTo: otherContainer.leadingAnchor),
-            addPhotoRow.trailingAnchor.constraint(equalTo: otherContainer.trailingAnchor),
-            addPhotoRow.heightAnchor.constraint(equalToConstant: 48),
-            addPhotoRow.bottomAnchor.constraint(equalTo: otherContainer.bottomAnchor),
-        ])
+        dependenciesRow.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+        }
+        
+        divider.snp.makeConstraints { make in
+            make.top.equalTo(dependenciesRow.snp.bottom)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(1)
+        }
+        
+        addPhotoRow.snp.makeConstraints { make in
+            make.top.equalTo(divider.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(48)
+            make.bottom.equalToSuperview()
+        }
     }
     
     private func createDivider() -> UIView {
