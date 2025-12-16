@@ -6,6 +6,10 @@ final class AchievementsViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private let viewModel = AchievementsViewModel()
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Achievements"

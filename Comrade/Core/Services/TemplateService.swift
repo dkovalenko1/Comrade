@@ -7,7 +7,9 @@ final class TemplateService {
     private let coreData = CoreDataStack.shared
 
     private init() {
-        seedPresetsIfNeeded()
+        coreData.performBackground { [weak self] context in
+            self?.seedPresetsIfNeeded(in: context)
+        }
     }
 
     func getAllTemplates() -> [PomodoroTemplateModel] {
@@ -55,8 +57,10 @@ final class TemplateService {
         return coreData.fetchFirst(PomodoroTemplate.self, predicate: predicate)
     }
 
-    private func seedPresetsIfNeeded() {
-        let existingPresets = getPresetTemplates()
+    private func seedPresetsIfNeeded(in context: NSManagedObjectContext) {
+        let request: NSFetchRequest<PomodoroTemplate> = PomodoroTemplate.fetchRequest()
+        request.predicate = NSPredicate(format: "isPreset == YES")
+        let existingPresets = (try? context.fetch(request)) ?? []
         guard existingPresets.isEmpty else { return }
 
         let presets: [PomodoroTemplateModel] = [
@@ -66,7 +70,19 @@ final class TemplateService {
             .init(name: "Student", icon: "🎓", workDuration: 45 * 60, shortBreakDuration: 15 * 60, longBreakDuration: 30 * 60, cyclesBeforeLongBreak: 2, isPreset: true)
         ]
 
-        presets.forEach { upsert($0) }
+        presets.forEach { model in
+            guard let entity = NSEntityDescription.insertNewObject(forEntityName: "PomodoroTemplate", into: context) as? PomodoroTemplate else { return }
+            model.apply(to: entity)
+        }
+
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                print("Failed to seed templates: \(nserror), \(nserror.userInfo)")
+            }
+        }
     }
 }
 

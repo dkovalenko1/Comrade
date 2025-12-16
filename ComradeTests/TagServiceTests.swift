@@ -20,7 +20,6 @@ final class TagServiceTests: XCTestCase {
     }
     
     func testDefaultTagsCreation() {
-        // Default tags are created on init
         let tags = tagService.fetchAllTags()
         XCTAssertFalse(tags.isEmpty)
     }

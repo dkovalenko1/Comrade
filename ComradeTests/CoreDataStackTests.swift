@@ -36,4 +36,43 @@ final class CoreDataStackTests: XCTestCase {
         
         waitForExpectations(timeout: 1.0, handler: nil)
     }
+
+    func testPerformBackgroundSavesAndMerges() {
+        let saveExpectation = expectation(description: "Background save merges to main")
+
+        let notificationToken = NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextDidSave,
+            object: nil,
+            queue: .main
+        ) { notification in
+            guard
+                let userInfo = notification.userInfo,
+                let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>,
+                inserts.contains(where: { $0 is SocialCreditEntity })
+            else { return }
+            saveExpectation.fulfill()
+        }
+
+        coreDataStack.performBackground { context in
+            let entity = SocialCreditEntity(context: context)
+            entity.id = UUID()
+            entity.currentScore = 200
+            entity.totalEarned = 200
+            entity.totalLost = 0
+            entity.tier = SocialCreditTier.bronze.rawValue
+            entity.lastUpdate = Date()
+        }
+
+        waitForExpectations(timeout: 2.0, handler: nil)
+        NotificationCenter.default.removeObserver(notificationToken)
+
+        let mergedCountExpectation = expectation(description: "Main context sees inserted entity")
+        coreDataStack.context.perform {
+            let merged = self.coreDataStack.count(SocialCreditEntity.self)
+            if merged == 1 {
+                mergedCountExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1.0, handler: nil)
+    }
 }

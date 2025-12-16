@@ -23,7 +23,6 @@ final class TasksViewModelTests: XCTestCase {
     }
     
     func testLoadTasks() {
-        // Create some tasks
         taskService.createTask(name: "Task 1", category: "Personal")
         taskService.createTask(name: "Task 2", category: "Work")
         
@@ -45,11 +44,9 @@ final class TasksViewModelTests: XCTestCase {
     }
     
     func testSectionGrouping() {
-        // Today task
         let today = Date()
         taskService.createTask(name: "Today Task", deadline: today)
         
-        // Personal task (no deadline)
         taskService.createTask(name: "Personal Task", category: "Personal")
         
         viewModel.loadTasks()
@@ -62,7 +59,6 @@ final class TasksViewModelTests: XCTestCase {
         _ = taskService.createTask(name: "Task to Complete")
         viewModel.loadTasks()
         
-        // Find where the task is
         guard let sectionIndex = TaskSection.allCases.firstIndex(where: { viewModel.taskCount(for: $0) > 0 }) else {
             XCTFail("Task not found in any section")
             return
@@ -70,13 +66,11 @@ final class TasksViewModelTests: XCTestCase {
         
         viewModel.toggleTaskCompletion(at: sectionIndex, row: 0)
         
-        // Reload to reflect changes
         viewModel.loadTasks()
         
         XCTAssertEqual(viewModel.completedTaskCount, 1)
         XCTAssertEqual(viewModel.activeTaskCount, 0)
         
-        // Toggle back
         viewModel.toggleTaskCompletion(at: TaskSection.completed.rawValue, row: 0)
         viewModel.loadTasks()
         

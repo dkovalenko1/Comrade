@@ -11,7 +11,9 @@ final class AchievementsService {
     private let templateService = TemplateService.shared
 
     private init() {
-        seedIfNeeded()
+        CoreDataStack.shared.performBackground { [weak self] context in
+            self?.seedIfNeeded(in: context)
+        }
         setupObservers()
     }
 
@@ -47,24 +49,52 @@ final class AchievementsService {
 
     @discardableResult
     func refreshAll(task: TaskEntity? = nil) -> [Achievement] {
-        evaluateAchievements(session: nil, context: nil, completedTask: task)
+        evaluateAchievements(session: nil, context: nil, completedTask: task, managedObjectContext: coreData.context)
+    }
+
+    /// Async variant to avoid blocking the main queue; completion called on main.
+    func refreshAllAsync(task: TaskEntity? = nil, completion: (([Achievement]) -> Void)? = nil) {
+        let taskID = task?.objectID
+        coreData.performBackground { [weak self] context in
+            guard let self else { return }
+            let backgroundTask = taskID.flatMap { context.object(with: $0) as? TaskEntity }
+            let unlocked = self.evaluateAchievements(
+                session: nil,
+                context: nil,
+                completedTask: backgroundTask,
+                managedObjectContext: context
+            )
+            if let completion {
+                DispatchQueue.main.async {
+                    completion(unlocked)
+                }
+            }
+        }
     }
 
     func resetAllAchievements(completion: ((Bool) -> Void)? = nil) {
-        let entities = coreData.fetch(AchievementEntity.self)
-        entities.forEach { coreData.context.delete($0) }
-        coreData.save { _ in
-            self.seedIfNeeded()
-            completion?(true)
+        coreData.performBackground { context in
+            let request: NSFetchRequest<AchievementEntity> = AchievementEntity.fetchRequest()
+            let entities = (try? context.fetch(request)) ?? []
+            entities.forEach { context.delete($0) }
+
+            self.seedIfNeeded(in: context)
+
+            DispatchQueue.main.async {
+                completion?(true)
+            }
         }
     }
 
     private func evaluateAchievements(
         session: TimerSession?,
         context: SessionAchievementContext?,
-        completedTask: TaskEntity?
+        completedTask: TaskEntity?,
+        managedObjectContext: NSManagedObjectContext? = nil
     ) -> [Achievement] {
-        let achievements = coreData.fetch(AchievementEntity.self)
+        let workingContext = managedObjectContext ?? coreData.context
+        let request: NSFetchRequest<AchievementEntity> = AchievementEntity.fetchRequest()
+        let achievements = (try? workingContext.fetch(request)) ?? []
         var unlockedNow: [Achievement] = []
 
         achievements.forEach { entity in
@@ -75,7 +105,8 @@ final class AchievementsService {
                 id: model.id,
                 session: session,
                 context: context,
-                task: completedTask
+                task: completedTask,
+                managedObjectContext: workingContext
             )
 
             if shouldUnlock {
@@ -83,15 +114,22 @@ final class AchievementsService {
                 model.unlockedAt = Date()
                 model.progress = max(model.progress, model.target)
                 apply(model: model, to: entity)
-                coreData.save()
+                coreData.save(context: workingContext)
 
                 if let unlockedModel = map(entity: entity) {
                     unlockedNow.append(unlockedModel)
-                    NotificationCenter.default.post(
-                        name: .achievementUnlocked,
-                        object: nil,
-                        userInfo: ["id": unlockedModel.id]
-                    )
+                    let post = {
+                        NotificationCenter.default.post(
+                            name: .achievementUnlocked,
+                            object: nil,
+                            userInfo: ["id": unlockedModel.id]
+                        )
+                    }
+                    if Thread.isMainThread {
+                        post()
+                    } else {
+                        DispatchQueue.main.async { post() }
+                    }
                 }
             } else {
                 // Update progress where applicable
@@ -99,10 +137,11 @@ final class AchievementsService {
                     for: model.id,
                     session: session,
                     context: context,
-                    task: completedTask
+                    task: completedTask,
+                    managedObjectContext: workingContext
                 )
                 apply(model: model, to: entity)
-                coreData.save()
+                coreData.save(context: workingContext)
             }
         }
 
@@ -111,6 +150,10 @@ final class AchievementsService {
 
 
     private func seedIfNeeded() {
+        seedIfNeeded(in: coreData.context)
+    }
+
+    private func seedIfNeeded(in context: NSManagedObjectContext) {
         let presets: [Achievement] = [
             .init(id: "first_blood", title: "First Blood", detail: "Complete your first focus session", icon: "🔥", category: .focusTime, target: 1),
             .init(id: "dedicated", title: "Dedicated", detail: "Maintain a 7-day focus streak", icon: "📅", category: .streaks, target: 7),
@@ -127,17 +170,18 @@ final class AchievementsService {
             .init(id: "streak_5", title: "Streak 5", detail: "Complete 3 sessions per day for 5 days in a row", icon: "📆", category: .streaks, target: 5)
         ]
 
-        let existing = coreData.fetch(AchievementEntity.self)
+        let existingRequest: NSFetchRequest<AchievementEntity> = AchievementEntity.fetchRequest()
+        let existing = (try? context.fetch(existingRequest)) ?? []
         let existingIds = Set(existing.compactMap { $0.id })
 
         presets.forEach { model in
             guard existingIds.contains(model.id) == false else { return }
-            let entity = coreData.create(AchievementEntity.self)
+            guard let entity = NSEntityDescription.insertNewObject(forEntityName: "AchievementEntity", into: context) as? AchievementEntity else { return }
             apply(model: model, to: entity)
         }
 
-        if coreData.context.hasChanges {
-            coreData.save()
+        if context.hasChanges {
+            coreData.save(context: context)
         }
     }
 
@@ -145,43 +189,45 @@ final class AchievementsService {
         id: String,
         session: TimerSession?,
         context: SessionAchievementContext?,
-        task: TaskEntity?
+        task: TaskEntity?,
+        managedObjectContext: NSManagedObjectContext?
     ) -> Bool {
+        let fetchContext = managedObjectContext
         switch id {
         case "first_blood":
             return session != nil
         case "dedicated":
-            return currentStreak() >= 7
+            return currentStreak(context: fetchContext) >= 7
         case "marathon":
-            return totalFocusHours() >= 50
+            return totalFocusHours(context: fetchContext) >= 50
         case "night_owl":
             return session.map { isNight(session: $0) } ?? false
         case "early_bird":
             return session.map { isEarly(session: $0) } ?? false
         case "productive":
-            return totalCompletedTasks() >= 100
+            return totalCompletedTasks(context: fetchContext) >= 100
         case "inbox_zero":
-            return activeTasksCount() == 0
+            return activeTasksCount(context: fetchContext) == 0
         case "deadline_hero":
             return task.map { completedBeforeDeadline($0) } ?? false
         case "mentor":
-            return totalCompletedSessions() >= 50
+            return totalCompletedSessions(context: fetchContext) >= 50
         case "focus_25":
             let duration = context?.plannedWorkDuration ?? TimeInterval(session?.duration ?? 0)
             return duration >= 25 * 60
         case "collector":
-            return customTemplatesCount() >= 10
+            return customTemplatesCount(context: fetchContext) >= 10
         case "polisher":
-            return editedCustomTemplatesCount() >= 3
+            return editedCustomTemplatesCount(context: fetchContext) >= 3
         case "streak_5":
-            return consecutiveDaysWith(minSessionsPerDay: 3) >= 5
+            return consecutiveDaysWith(minSessionsPerDay: 3, context: fetchContext) >= 5
         default:
             return false
         }
     }
 
-    private func currentStreak() -> Int {
-        let sessions = sessionService.getCompletedSessions()
+    private func currentStreak(context: NSManagedObjectContext?) -> Int {
+        let sessions = completedSessions(in: context)
         let calendar = Calendar.current
         let days = sessions.compactMap { $0.startTime }.map { calendar.startOfDay(for: $0) }
         let uniqueDays = Array(Set(days)).sorted(by: >)
@@ -205,17 +251,18 @@ final class AchievementsService {
         return streak
     }
 
-    private func totalFocusHours() -> Double {
-        let seconds = sessionService.getTotalFocusTime(days: 365)
+    private func totalFocusHours(context: NSManagedObjectContext?) -> Double {
+        let sessions = completedSessions(in: context, limitDays: 365)
+        let seconds = sessions.reduce(0) { $0 + TimeInterval($1.duration) }
         return seconds / 3600.0
     }
 
-    private func totalCompletedSessions() -> Int {
-        sessionService.getCompletedSessions().count
+    private func totalCompletedSessions(context: NSManagedObjectContext?) -> Int {
+        completedSessions(in: context).count
     }
 
-    private func longestSessionMinutes() -> Double {
-        let sessions = sessionService.getCompletedSessions()
+    private func longestSessionMinutes(context: NSManagedObjectContext? = nil) -> Double {
+        let sessions = completedSessions(in: context)
         let maxDuration = sessions.map { Double($0.duration) }.max() ?? 0
         return maxDuration / 60.0
     }
@@ -232,12 +279,18 @@ final class AchievementsService {
         return hour < 8
     }
 
-    private func activeTasksCount() -> Int {
-        taskService.getActiveTasks().count
+    private func activeTasksCount(context: NSManagedObjectContext?) -> Int {
+        let context = context ?? coreData.context
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isCompleted == NO")
+        return (try? context.count(for: request)) ?? 0
     }
 
-    private func totalCompletedTasks() -> Int {
-        taskService.getCompletedTasks().count
+    private func totalCompletedTasks(context: NSManagedObjectContext?) -> Int {
+        let context = context ?? coreData.context
+        let request: NSFetchRequest<TaskEntity> = TaskEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isCompleted == YES")
+        return (try? context.count(for: request)) ?? 0
     }
 
     private func completedBeforeDeadline(_ task: TaskEntity) -> Bool {
@@ -250,25 +303,22 @@ final class AchievementsService {
         return deadline.timeIntervalSince(completedAt) >= 5 * 60
     }
 
-    private func customTemplatesCount() -> Int {
-        templateService.getAllTemplates().filter { !$0.isPreset }.count
+    private func customTemplatesCount(context: NSManagedObjectContext?) -> Int {
+        let context = context ?? coreData.context
+        let request: NSFetchRequest<PomodoroTemplate> = PomodoroTemplate.fetchRequest()
+        request.predicate = NSPredicate(format: "isPreset == NO")
+        return (try? context.count(for: request)) ?? 0
     }
 
-    private func editedCustomTemplatesCount() -> Int {
-        templateService
-            .getAllTemplates()
-            .filter { !$0.isPreset }
-            .filter { template in
-                if let updated = template.updatedAt {
-                    return updated > template.createdAt
-                }
-                return false
-            }
-            .count
+    private func editedCustomTemplatesCount(context: NSManagedObjectContext?) -> Int {
+        let context = context ?? coreData.context
+        let request: NSFetchRequest<PomodoroTemplate> = PomodoroTemplate.fetchRequest()
+        request.predicate = NSPredicate(format: "isPreset == NO AND updatedAt > createdAt")
+        return (try? context.count(for: request)) ?? 0
     }
 
-    private func consecutiveDaysWith(minSessionsPerDay: Int) -> Int {
-        let sessions = sessionService.getCompletedSessions()
+    private func consecutiveDaysWith(minSessionsPerDay: Int, context: NSManagedObjectContext?) -> Int {
+        let sessions = completedSessions(in: context)
         let calendar = Calendar.current
 
         let grouped = Dictionary(grouping: sessions.compactMap { $0.startTime }) { date in
@@ -299,32 +349,50 @@ final class AchievementsService {
         for id: String,
         session: TimerSession?,
         context: SessionAchievementContext?,
-        task: TaskEntity?
+        task: TaskEntity?,
+        managedObjectContext: NSManagedObjectContext?
     ) -> Double {
+        let fetchContext = managedObjectContext
         switch id {
         case "marathon":
-            return totalFocusHours()
+            return totalFocusHours(context: fetchContext)
         case "dedicated":
-            return Double(currentStreak())
+            return Double(currentStreak(context: fetchContext))
         case "productive":
-            return Double(totalCompletedTasks())
+            return Double(totalCompletedTasks(context: fetchContext))
         case "mentor":
-            return Double(totalCompletedSessions())
+            return Double(totalCompletedSessions(context: fetchContext))
         case "focus_25":
-            return longestSessionMinutes()
+            return longestSessionMinutes(context: fetchContext)
         case "collector":
-            return Double(customTemplatesCount())
+            return Double(customTemplatesCount(context: fetchContext))
         case "polisher":
-            return Double(editedCustomTemplatesCount())
+            return Double(editedCustomTemplatesCount(context: fetchContext))
         case "inbox_zero":
-            return activeTasksCount() == 0 ? 1 : 0
+            return activeTasksCount(context: fetchContext) == 0 ? 1 : 0
         case "deadline_hero":
             return task.map { completedBeforeDeadline($0) ? 1.0 : 0.0 } ?? 0
         case "streak_5":
-            return Double(consecutiveDaysWith(minSessionsPerDay: 3))
+            return Double(consecutiveDaysWith(minSessionsPerDay: 3, context: fetchContext))
         default:
             return 0
         }
+    }
+
+    private func completedSessions(in context: NSManagedObjectContext?, limitDays: Int? = nil) -> [TimerSession] {
+        let context = context ?? coreData.context
+        let request: NSFetchRequest<TimerSession> = TimerSession.fetchRequest()
+        var predicates: [NSPredicate] = [NSPredicate(format: "wasCompleted == YES")]
+
+        if let limitDays {
+            let startDate = Calendar.current.date(byAdding: .day, value: -limitDays, to: Date()) ?? Date()
+            predicates.append(NSPredicate(format: "startTime >= %@", startDate as CVarArg))
+        }
+
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        request.sortDescriptors = [NSSortDescriptor(key: "startTime", ascending: false)]
+
+        return (try? context.fetch(request)) ?? []
     }
 
 

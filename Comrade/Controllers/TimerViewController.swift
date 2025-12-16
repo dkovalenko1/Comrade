@@ -39,6 +39,10 @@ class TimerViewController: UIViewController {
     private let viewModel = TimerViewModel()
     private var isRunning = false
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
