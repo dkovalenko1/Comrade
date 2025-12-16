@@ -9,7 +9,7 @@ final class AchievementsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Achievements"
-        view.backgroundColor = UIColor(red: 0.98, green: 0.97, blue: 0.96, alpha: 1.0)
+        view.backgroundColor = .appBackground
         setupTable()
         setupNavigation()
         bind()
@@ -25,7 +25,7 @@ final class AchievementsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(AchievementCell.self, forCellReuseIdentifier: "AchievementCell")
-        tableView.backgroundColor = UIColor(red: 0.98, green: 0.97, blue: 0.96, alpha: 1.0)
+        tableView.backgroundColor = .appBackground
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         view.addSubview(tableView)
 

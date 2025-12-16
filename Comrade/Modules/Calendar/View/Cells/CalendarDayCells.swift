@@ -7,15 +7,19 @@ final class WeekDayCell: UICollectionViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .white
         view.layer.cornerRadius = 18
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.05
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 4
         return view
     }()
     
     private let dayLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.textColor = .appRed
         label.textAlignment = .center
         return label
     }()
@@ -23,14 +27,14 @@ final class WeekDayCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .bold)
-        label.textColor = .label
+        label.textColor = UIColor(white: 0.18, alpha: 1.0)
         label.textAlignment = .center
         return label
     }()
     
     private let dotView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0) // App Red
+        view.backgroundColor = .appRed
         view.layer.cornerRadius = 2.5
         view.isHidden = true
         return view
@@ -83,15 +87,15 @@ final class WeekDayCell: UICollectionViewCell {
         dotView.isHidden = !hasDeadline
         
         if isSelected {
-            containerView.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            containerView.backgroundColor = .appRed
             dayLabel.textColor = .white.withAlphaComponent(0.8)
             dateLabel.textColor = .white
             dotView.backgroundColor = .white
         } else {
-            containerView.backgroundColor = .systemGray6
-            dayLabel.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-            dateLabel.textColor = .label
-            dotView.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            containerView.backgroundColor = .white
+            dayLabel.textColor = .appRed
+            dateLabel.textColor = UIColor(white: 0.18, alpha: 1.0)
+            dotView.backgroundColor = .appRed
         }
     }
 }
@@ -102,7 +106,7 @@ final class MonthDayCell: UICollectionViewCell {
     
     private let selectionCircle: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        view.backgroundColor = .appRed
         view.layer.cornerRadius = 20
         view.isHidden = true
         return view
@@ -111,7 +115,7 @@ final class MonthDayCell: UICollectionViewCell {
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .label
+        label.textColor = UIColor(white: 0.18, alpha: 1.0)
         label.textAlignment = .center
         return label
     }()
@@ -176,7 +180,7 @@ final class MonthDayCell: UICollectionViewCell {
         } else {
             dateLabel.textColor = .label
             dateLabel.font = .systemFont(ofSize: 16, weight: .regular)
-            dotView.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            dotView.backgroundColor = .appRed
         }
     }
 }

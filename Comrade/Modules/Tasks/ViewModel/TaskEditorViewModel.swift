@@ -80,7 +80,6 @@ final class TaskEditorViewModel {
     var reminders: [ReminderModel] = []
     var selectedTags: [TagEntity] = []
     var dependencies: [TaskEntity] = []
-    var photoData: Data?
     
     // Available Options
     
@@ -110,6 +109,7 @@ final class TaskEditorViewModel {
     
     init(
         mode: TaskEditorMode,
+        prefilledDeadline: Date? = nil,
         taskService: TaskService = .shared,
         notificationService: NotificationService = .shared,
         categoryService: CategoryService = .shared
@@ -122,6 +122,10 @@ final class TaskEditorViewModel {
         if case .edit(let task) = mode {
             self.existingTask = task
             loadTaskData(task)
+        } else if let date = prefilledDeadline {
+            let startOfDay = Calendar.current.startOfDay(for: date)
+            self.deadline = startOfDay
+            self.deadlineIsAllDay = true
         }
     }
     
@@ -135,7 +139,6 @@ final class TaskEditorViewModel {
         priority = TaskPriority(rawValue: task.priority) ?? .medium
         deadline = task.deadline
         deadlineIsAllDay = task.deadlineIsAllDay
-        photoData = task.photoData
         
         // Load reminders
         if let reminderEntities = task.reminders as? Set<ReminderEntity> {
@@ -199,11 +202,6 @@ final class TaskEditorViewModel {
             deadlineIsAllDay: deadlineIsAllDay
         )
         
-        // Set photo if exists
-        if let photoData = photoData {
-            task.photoData = photoData
-            CoreDataStack.shared.save()
-        }
         
         // Add tags
         for tag in selectedTags {
@@ -234,7 +232,6 @@ final class TaskEditorViewModel {
         task.priority = priority.rawValue
         task.deadline = deadline
         task.deadlineIsAllDay = deadlineIsAllDay
-        task.photoData = photoData
         
         // Update tags - remove old, add new
         if let existingTags = task.tags as? Set<TagEntity> {
@@ -327,6 +324,15 @@ final class TaskEditorViewModel {
         reminders.append(reminder)
     }
     
+    func addRelativeReminderIfNeeded(minutes: Int32) {
+        guard !reminders.contains(where: { $0.isRelative && $0.relativeMinutes == minutes }) else { return }
+        reminders.append(ReminderModel(isRelative: true, relativeMinutes: minutes))
+    }
+    
+    func clearReminders() {
+        reminders.removeAll()
+    }
+    
     func addAbsoluteReminder(date: Date) {
         let reminder = ReminderModel(isRelative: false, absoluteDate: date)
         reminders.append(reminder)
@@ -370,16 +376,6 @@ final class TaskEditorViewModel {
     func removeTag(at index: Int) {
         guard index < selectedTags.count else { return }
         selectedTags.remove(at: index)
-    }
-    
-    // Photo
-    
-    func setPhoto(_ data: Data?) {
-        photoData = data
-    }
-    
-    func removePhoto() {
-        photoData = nil
     }
     
     // Available Tasks for Dependencies

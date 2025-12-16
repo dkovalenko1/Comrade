@@ -18,7 +18,7 @@ final class TasksViewController: UIViewController {
         table.register(TaskSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: TaskSectionHeaderView.identifier)
         table.register(TaskSectionFooterView.self, forHeaderFooterViewReuseIdentifier: TaskSectionFooterView.identifier)
         table.separatorStyle = .none
-        table.backgroundColor = .systemBackground
+        table.backgroundColor = .clear
         table.showsVerticalScrollIndicator = false
         table.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         table.accessibilityIdentifier = "tasks_table_view"
@@ -34,7 +34,7 @@ final class TasksViewController: UIViewController {
         button.setImage(image, for: .normal)
         
         button.tintColor = .white
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        button.backgroundColor = .appRed
         button.layer.cornerRadius = 28
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -51,8 +51,8 @@ final class TasksViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         button.setImage(UIImage(systemName: "line.3.horizontal.decrease.circle", withConfiguration: config), for: .normal)
-        button.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
+        button.tintColor = .appRed
+        button.backgroundColor = UIColor.appRed.withAlphaComponent(0.15)
         button.layer.cornerRadius = 18
         button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
         return button
@@ -63,7 +63,7 @@ final class TasksViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Tasks"
         label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.textColor = UIColor(red: 1.0, green: 0.35, blue: 0.35, alpha: 1.0)
         label.accessibilityIdentifier = "tasks_title"
         return label
     }()
@@ -89,12 +89,12 @@ final class TasksViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = "No Tasks"
         titleLabel.font = .systemFont(ofSize: 20, weight: .semibold)
-        titleLabel.textColor = .systemGray
+        titleLabel.textColor = UIColor(white: 0.3, alpha: 1.0)
         
         let subtitleLabel = UILabel()
         subtitleLabel.text = "Tap + to create your first task"
         subtitleLabel.font = .systemFont(ofSize: 16)
-        subtitleLabel.textColor = .systemGray2
+        subtitleLabel.textColor = UIColor(white: 0.45, alpha: 1.0)
         
         stackView.addArrangedSubview(imageView)
         stackView.addArrangedSubview(titleLabel)
@@ -126,7 +126,7 @@ final class TasksViewController: UIViewController {
     // Setup
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .appBackground
         
         view.addSubview(titleLabel)
         view.addSubview(filterButton)

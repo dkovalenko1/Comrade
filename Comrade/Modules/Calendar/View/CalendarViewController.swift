@@ -9,14 +9,14 @@ final class CalendarViewController: UIViewController {
         let label = UILabel()
         label.text = "Calendar"
         label.font = .systemFont(ofSize: 28, weight: .bold)
-        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.textColor = .appRed
         return label
     }()
     
     private lazy var monthSelectorButton: UIButton = {
         let btn = UIButton(type: .system)
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = .systemGray6
+        config.baseBackgroundColor = .white
         config.baseForegroundColor = .label
         config.image = UIImage(systemName: "chevron.down")
         config.imagePlacement = .trailing
@@ -39,10 +39,21 @@ final class CalendarViewController: UIViewController {
             label.text = day
             label.textAlignment = .center
             label.font = .systemFont(ofSize: 14, weight: .bold)
-            label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            label.textColor = .appRed
             stack.addArrangedSubview(label)
         }
         return stack
+    }()
+    
+    private let calendarContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 16
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.05
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 6
+        return view
     }()
     
     private lazy var calendarCollectionView: UICollectionView = {
@@ -65,17 +76,26 @@ final class CalendarViewController: UIViewController {
         tv.delegate = self
         tv.dataSource = self
         tv.register(CalendarTaskCell.self, forCellReuseIdentifier: CalendarTaskCell.identifier)
-        tv.backgroundColor = .systemBackground
+        tv.backgroundColor = .clear
         tv.separatorStyle = .none
         return tv
     }()
+    
+    // Constraints references
+    private var weekTopConstraint: Constraint?
+    private var monthTopConstraint: Constraint?
+    private var calendarHeightConstraint: Constraint?
+    private var containerHeightConstraint: Constraint?
+    
+    // Animation state
+    private var pendingSlideDirection: CGFloat?
     
     private lazy var fabButton: UIButton = {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)
         button.setImage(UIImage(systemName: "plus", withConfiguration: config), for: .normal)
         button.tintColor = .white
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        button.backgroundColor = .appRed
         button.layer.cornerRadius = 28
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0, height: 4)
@@ -91,6 +111,7 @@ final class CalendarViewController: UIViewController {
         setupGestures()
         bindViewModel()
         updateHeader()
+        applyCalendarLayout(isWeek: viewModel.mode == .week, animated: false)
         
         NotificationCenter.default.addObserver(self, selector: #selector(refreshData), name: .taskCreated, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(refreshData), name: .taskUpdated, object: nil)
@@ -98,13 +119,14 @@ final class CalendarViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .appBackground
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         view.addSubview(titleLabel)
         view.addSubview(monthSelectorButton)
-        view.addSubview(daysHeaderStack)
-        view.addSubview(calendarCollectionView)
+        view.addSubview(calendarContainer)
+        calendarContainer.addSubview(daysHeaderStack)
+        calendarContainer.addSubview(calendarCollectionView)
         view.addSubview(tableView)
         view.addSubview(fabButton)
         
@@ -119,20 +141,29 @@ final class CalendarViewController: UIViewController {
             make.height.equalTo(36)
         }
         
+        calendarContainer.snp.makeConstraints { make in
+            make.top.equalTo(monthSelectorButton.snp.bottom).offset(12)
+            make.leading.trailing.equalToSuperview().inset(16)
+            containerHeightConstraint = make.height.equalTo(120).constraint
+        }
+        
         daysHeaderStack.snp.makeConstraints { make in
-            make.top.equalTo(monthSelectorButton.snp.bottom).offset(20)
-            make.leading.trailing.equalToSuperview().inset(10)
+            make.top.equalToSuperview().offset(12)
+            make.leading.trailing.equalToSuperview().inset(12)
             make.height.equalTo(20)
         }
         
         calendarCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(monthSelectorButton.snp.bottom).offset(20)
-            make.leading.trailing.equalToSuperview().inset(10)
-            make.height.equalTo(80)
+            weekTopConstraint = make.top.equalTo(calendarContainer.snp.top).offset(16).constraint
+            monthTopConstraint = make.top.equalTo(daysHeaderStack.snp.bottom).offset(10).constraint
+            make.leading.trailing.equalToSuperview().inset(12)
+            calendarHeightConstraint = make.height.equalTo(80).constraint
+            make.bottom.equalToSuperview().inset(12)
         }
+        monthTopConstraint?.deactivate()
         
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(calendarCollectionView.snp.bottom).offset(20)
+            make.top.equalTo(calendarContainer.snp.bottom).offset(20)
             make.leading.trailing.bottom.equalToSuperview()
         }
         
@@ -156,7 +187,7 @@ final class CalendarViewController: UIViewController {
     private func bindViewModel() {
         viewModel.onDateChanged = { [weak self] in
             self?.updateHeader()
-            self?.calendarCollectionView.reloadData()
+            self?.animateCalendarChangeIfNeeded()
             self?.tableView.reloadData()
         }
         
@@ -177,8 +208,10 @@ final class CalendarViewController: UIViewController {
     
     @objc private func handleSwipe(_ gesture: UISwipeGestureRecognizer) {
         if gesture.direction == .left {
+            pendingSlideDirection = -1
             viewModel.moveTime(direction: 1)
         } else {
+            pendingSlideDirection = 1
             viewModel.moveTime(direction: -1)
         }
     }
@@ -186,31 +219,11 @@ final class CalendarViewController: UIViewController {
     @objc private func toggleMode() {
         let newMode: CalendarMode = viewModel.mode == .week ? .month : .week
         viewModel.switchMode(newMode)
-        
-        let isWeek = newMode == .week
-        let newHeight: CGFloat = isWeek ? 80 : 340
-        
-        daysHeaderStack.isHidden = isWeek
-        
-        calendarCollectionView.snp.remakeConstraints { make in
-            if isWeek {
-                make.top.equalTo(monthSelectorButton.snp.bottom).offset(20)
-            } else {
-                make.top.equalTo(daysHeaderStack.snp.bottom).offset(10)
-            }
-            make.leading.trailing.equalToSuperview().inset(10)
-            make.height.equalTo(newHeight)
-        }
-        
-        UIView.animate(withDuration: 0.3) {
-            self.view.layoutIfNeeded()
-        } completion: { _ in
-            self.calendarCollectionView.reloadData()
-        }
+        applyCalendarLayout(isWeek: newMode == .week, animated: true)
     }
     
     @objc private func fabTapped() {
-        let editorVC = TaskEditorViewController(mode: .create)
+        let editorVC = TaskEditorViewController(mode: .create, prefilledDeadline: viewModel.selectedDate)
         present(editorVC, animated: true)
     }
 }
@@ -294,6 +307,54 @@ extension CalendarViewController: UITableViewDataSource, UITableViewDelegate {
         let task = viewModel.tasksForSelectedDate[indexPath.row]
         let editorVC = TaskEditorViewController(mode: .edit(task))
         present(editorVC, animated: true)
+    }
+}
+
+private extension CalendarViewController {
+    func applyCalendarLayout(isWeek: Bool, animated: Bool) {
+        let newHeight: CGFloat = isWeek ? 80 : 300
+        daysHeaderStack.isHidden = isWeek
+        
+        calendarHeightConstraint?.update(offset: newHeight)
+        containerHeightConstraint?.update(offset: isWeek ? 120 : 380)
+        
+        if isWeek {
+            weekTopConstraint?.activate()
+            monthTopConstraint?.deactivate()
+        } else {
+            weekTopConstraint?.deactivate()
+            monthTopConstraint?.activate()
+        }
+        
+        let animations = { self.view.layoutIfNeeded() }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3, animations: animations) { _ in
+                self.calendarCollectionView.reloadData()
+            }
+        } else {
+            animations()
+            calendarCollectionView.reloadData()
+        }
+    }
+    
+    func animateCalendarChangeIfNeeded() {
+        let direction = pendingSlideDirection
+        pendingSlideDirection = nil
+        
+        guard let direction = direction else {
+            calendarCollectionView.reloadData()
+            return
+        }
+        
+        let offset: CGFloat = 24 * direction
+        calendarCollectionView.transform = CGAffineTransform(translationX: offset, y: 0).scaledBy(x: 0.98, y: 0.98)
+        calendarCollectionView.alpha = 0.85
+        calendarCollectionView.reloadData()
+        UIView.animate(withDuration: 0.28, delay: 0, usingSpringWithDamping: 0.85, initialSpringVelocity: 0.4, options: [.curveEaseOut], animations: {
+            self.calendarCollectionView.transform = .identity
+            self.calendarCollectionView.alpha = 1.0
+        })
     }
 }
 

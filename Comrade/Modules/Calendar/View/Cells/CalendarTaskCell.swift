@@ -9,8 +9,12 @@ final class CalendarTaskCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .white
         view.layer.cornerRadius = 16
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.04
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 5
         return view
     }()
     
@@ -32,7 +36,7 @@ final class CalendarTaskCell: UITableViewCell {
     
     private let timeDot: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        view.backgroundColor = .appRed
         view.layer.cornerRadius = 3
         return view
     }()
@@ -40,7 +44,7 @@ final class CalendarTaskCell: UITableViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = UIColor(white: 0.32, alpha: 1.0)
         return label
     }()
     

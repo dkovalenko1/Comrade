@@ -26,7 +26,7 @@ final class CategoryManagerViewController: UIViewController {
         button.setImage(image, for: .normal)
         
         button.tintColor = .white
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        button.backgroundColor = .appRed
         button.layer.cornerRadius = 28
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0, height: 4)

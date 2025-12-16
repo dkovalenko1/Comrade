@@ -27,7 +27,7 @@ final class TagsPickerViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("+ Add New Tag", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0), for: .normal)
+        button.setTitleColor(.appRed, for: .normal)
         button.addTarget(self, action: #selector(addNewTag), for: .touchUpInside)
         return button
     }()
@@ -87,7 +87,7 @@ final class TagsPickerViewController: UIViewController {
             target: self,
             action: #selector(doneTapped)
         )
-        navigationItem.rightBarButtonItem?.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        navigationItem.rightBarButtonItem?.tintColor = .appRed
     }
     
     private func bindViewModel() {
@@ -267,7 +267,7 @@ final class TagPickerCell: UITableViewCell {
         let imageView = UIImageView()
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         imageView.image = UIImage(systemName: "checkmark", withConfiguration: config)
-        imageView.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        imageView.tintColor = .appRed
         imageView.isHidden = true
         return imageView
     }()

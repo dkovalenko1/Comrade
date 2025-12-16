@@ -30,7 +30,7 @@ final class ToggleRowView: UIView {
     
     private lazy var toggle: UISwitch = {
         let toggle = UISwitch()
-        toggle.onTintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        toggle.onTintColor = .appRed
         toggle.addTarget(self, action: #selector(toggleChanged), for: .valueChanged)
         return toggle
     }()

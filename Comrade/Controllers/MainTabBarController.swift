@@ -26,6 +26,11 @@ final class MainTabBarController: UITabBarController {
 
         viewControllers = [timerNav, tasksNav, calendarNav, achievementsNav]
 
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .appBackground
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
         tabBar.tintColor = .systemRed
         tabBar.unselectedItemTintColor = .gray
     }

@@ -14,7 +14,7 @@ final class TaskCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .white
         return view
     }()
     
@@ -36,7 +36,7 @@ final class TaskCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .label
+        label.textColor = UIColor(white: 0.16, alpha: 1.0)
         label.numberOfLines = 2
         return label
     }()
@@ -64,7 +64,7 @@ final class TaskCell: UITableViewCell {
     private let deadlineLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = UIColor(white: 0.32, alpha: 1.0)
         return label
     }()
     
@@ -337,7 +337,7 @@ final class TaskCell: UITableViewCell {
         if isTaskCompleted {
             let image = UIImage(systemName: "checkmark.square.fill", withConfiguration: config)
             checkboxButton.setImage(image, for: .normal)
-            checkboxButton.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            checkboxButton.tintColor = .appRed
         } else {
             let image = UIImage(systemName: "square", withConfiguration: config)
             checkboxButton.setImage(image, for: .normal)
@@ -356,7 +356,7 @@ final class TaskCell: UITableViewCell {
         case "work":
             return .systemGreen
         case "studies":
-            return UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+            return .appRed
         default:
             return .systemGray4
         }

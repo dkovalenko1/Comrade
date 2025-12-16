@@ -11,13 +11,13 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .white
         return view
     }()
     
     private let iconView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
+        view.backgroundColor = UIColor.appRed.withAlphaComponent(0.15)
         view.layer.cornerRadius = 8
         return view
     }()
@@ -154,10 +154,17 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
             make.centerY.equalToSuperview()
         }
         
+        deleteButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        deleteButton.setContentHuggingPriority(.required, for: .horizontal)
         chevronImageView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(12)
             make.centerY.equalToSuperview()
             make.size.equalTo(CGSize(width: 16, height: 16))
+        }
+        
+        deleteButton.snp.makeConstraints { make in
+            make.trailing.equalTo(chevronImageView.snp.leading).offset(-12)
+            make.centerY.equalToSuperview()
         }
     }
     

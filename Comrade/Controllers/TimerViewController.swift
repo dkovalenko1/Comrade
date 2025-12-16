@@ -56,7 +56,7 @@ class TimerViewController: UIViewController {
     // MARK: - Setup UI
 
     private func setupUI() {
-        view.backgroundColor = UIColor(red: 0.98, green: 0.97, blue: 0.96, alpha: 1.0)
+        view.backgroundColor = .appBackground
 
         setupModeToggle()
         setupCreditIndicator()
@@ -87,8 +87,8 @@ class TimerViewController: UIViewController {
         // Mode toggle button
         modeToggleButton.setTitle("Casual", for: .normal)
         modeToggleButton.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        modeToggleButton.backgroundColor = UIColor.systemRed.withAlphaComponent(0.2)
-        modeToggleButton.setTitleColor(.systemRed, for: .normal)
+        modeToggleButton.backgroundColor = UIColor.appRed.withAlphaComponent(0.2)
+        modeToggleButton.setTitleColor(.appRed, for: .normal)
         modeToggleButton.layer.cornerRadius = 20
         modeToggleButton.accessibilityIdentifier = "modeToggleButton"
         modeToggleButton.addTarget(self, action: #selector(modeToggleTapped), for: .touchUpInside)
@@ -97,7 +97,7 @@ class TimerViewController: UIViewController {
         // Template button (uses slot of old hardcore button)
         templateButton.setTitle("Select template", for: .normal)
         templateButton.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        templateButton.backgroundColor = .systemRed
+        templateButton.backgroundColor = .appRed
         templateButton.setTitleColor(.white, for: .normal)
         templateButton.layer.cornerRadius = 20
         templateButton.accessibilityIdentifier = "templateButton"
@@ -107,7 +107,7 @@ class TimerViewController: UIViewController {
         // Reset credits button
         resetCreditsButton.setTitle("Reset credits", for: .normal)
         resetCreditsButton.titleLabel?.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
-        resetCreditsButton.setTitleColor(.systemRed, for: .normal)
+        resetCreditsButton.setTitleColor(.appRed, for: .normal)
         resetCreditsButton.addTarget(self, action: #selector(resetCreditsTapped), for: .touchUpInside)
         view.addSubview(resetCreditsButton)
     }

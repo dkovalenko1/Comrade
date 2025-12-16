@@ -29,7 +29,7 @@ final class DependencyChainViewController: UIViewController {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 6
-        view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        view.backgroundColor = .appRed
         return view
     }()
     

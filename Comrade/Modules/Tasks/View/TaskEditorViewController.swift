@@ -41,8 +41,8 @@ final class TaskEditorViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
         button.setImage(UIImage(systemName: "checkmark", withConfiguration: config), for: .normal)
-        button.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
-        button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
+        button.tintColor = .appRed
+        button.backgroundColor = UIColor.appRed.withAlphaComponent(0.15)
         button.layer.cornerRadius = 15
         button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         button.accessibilityIdentifier = "save_task_button"
@@ -54,7 +54,7 @@ final class TaskEditorViewController: UIViewController {
         field.translatesAutoresizingMaskIntoConstraints = false
         field.placeholder = "Name"
         field.font = .systemFont(ofSize: 28, weight: .bold)
-        field.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        field.textColor = .appRed
         field.delegate = self
         field.returnKeyType = .next
         field.accessibilityIdentifier = "task_name_field"
@@ -110,7 +110,7 @@ final class TaskEditorViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Deadline"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.textColor = .appRed
         return label
     }()
     
@@ -145,28 +145,14 @@ final class TaskEditorViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Reminder"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
+        label.textColor = .appRed
         return label
     }()
     
     private lazy var reminderRow: SettingsRowView = {
-        let row = SettingsRowView(title: "Multiple reminder", value: "")
+        let row = SettingsRowView(title: "Reminder", value: "")
         row.translatesAutoresizingMaskIntoConstraints = false
         row.onTap = { [weak self] in self?.showReminderPicker() }
-        return row
-    }()
-    
-    private lazy var relativeReminderRow: SettingsRowView = {
-        let row = SettingsRowView(title: "Relative", value: "")
-        row.translatesAutoresizingMaskIntoConstraints = false
-        row.onTap = { [weak self] in self?.showRelativeReminderPicker() }
-        return row
-    }()
-    
-    private lazy var absoluteReminderRow: ToggleRowView = {
-        let row = ToggleRowView(title: "Absolute")
-        row.translatesAutoresizingMaskIntoConstraints = false
-        row.isOn = true
         return row
     }()
     
@@ -174,13 +160,6 @@ final class TaskEditorViewController: UIViewController {
         let row = SettingsRowView(title: "Dependencies", value: "")
         row.translatesAutoresizingMaskIntoConstraints = false
         row.onTap = { [weak self] in self?.showDependenciesPicker() }
-        return row
-    }()
-    
-    private lazy var addPhotoRow: SettingsRowView = {
-        let row = SettingsRowView(title: "Add photo", value: "")
-        row.translatesAutoresizingMaskIntoConstraints = false
-        row.onTap = { [weak self] in self?.showPhotoPicker() }
         return row
     }()
     
@@ -192,8 +171,8 @@ final class TaskEditorViewController: UIViewController {
     
     // Init
     
-    init(mode: TaskEditorMode) {
-        self.viewModel = TaskEditorViewModel(mode: mode)
+    init(mode: TaskEditorMode, prefilledDeadline: Date? = nil) {
+        self.viewModel = TaskEditorViewModel(mode: mode, prefilledDeadline: prefilledDeadline)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -432,13 +411,6 @@ final class TaskEditorViewController: UIViewController {
         
         reminderContainer.addSubview(headerView)
         reminderContainer.addSubview(reminderRow)
-        reminderContainer.addSubview(relativeReminderRow)
-        reminderContainer.addSubview(absoluteReminderRow)
-        
-        let divider1 = createDivider()
-        let divider2 = createDivider()
-        reminderContainer.addSubview(divider1)
-        reminderContainer.addSubview(divider2)
         
         reminderSectionLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(16)
@@ -454,58 +426,15 @@ final class TaskEditorViewController: UIViewController {
             make.top.equalTo(headerView.snp.bottom)
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(48)
-        }
-        
-        divider1.snp.makeConstraints { make in
-            make.top.equalTo(reminderRow.snp.bottom)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview()
-            make.height.equalTo(1)
-        }
-        
-        relativeReminderRow.snp.makeConstraints { make in
-            make.top.equalTo(divider1.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(48)
-        }
-        
-        divider2.snp.makeConstraints { make in
-            make.top.equalTo(relativeReminderRow.snp.bottom)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview()
-            make.height.equalTo(1)
-        }
-        
-        absoluteReminderRow.snp.makeConstraints { make in
-            make.top.equalTo(divider2.snp.bottom)
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(48)
             make.bottom.equalToSuperview()
         }
     }
     
     private func setupOtherContainer() {
         otherContainer.addSubview(dependenciesRow)
-        otherContainer.addSubview(addPhotoRow)
-        
-        let divider = createDivider()
-        otherContainer.addSubview(divider)
         
         dependenciesRow.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.height.equalTo(48)
-        }
-        
-        divider.snp.makeConstraints { make in
-            make.top.equalTo(dependenciesRow.snp.bottom)
-            make.leading.equalToSuperview().offset(16)
-            make.trailing.equalToSuperview()
-            make.height.equalTo(1)
-        }
-        
-        addPhotoRow.snp.makeConstraints { make in
-            make.top.equalTo(divider.snp.bottom)
-            make.leading.trailing.equalToSuperview()
             make.height.equalTo(48)
             make.bottom.equalToSuperview()
         }
@@ -616,15 +545,25 @@ final class TaskEditorViewController: UIViewController {
     }
     
     private func showDatePicker() {
-        let alert = UIAlertController(title: "Select Date", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Select Date", message: nil, preferredStyle: .actionSheet)
         
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.date = viewModel.deadline ?? Date()
-        datePicker.frame = CGRect(x: 0, y: 50, width: alert.view.bounds.width - 20, height: 200)
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
         
         alert.view.addSubview(datePicker)
+        let pickerHeight: CGFloat = 216
+        datePicker.snp.makeConstraints { make in
+            make.top.equalTo(alert.view.snp.top).offset(52)
+            make.leading.equalTo(alert.view.layoutMarginsGuide.snp.leading)
+            make.trailing.equalTo(alert.view.layoutMarginsGuide.snp.trailing)
+            make.height.equalTo(pickerHeight)
+        }
+        alert.view.snp.makeConstraints { make in
+            make.height.greaterThanOrEqualTo(pickerHeight + 140)
+        }
         
         alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self] _ in
             self?.viewModel.deadline = datePicker.date
@@ -647,15 +586,25 @@ final class TaskEditorViewController: UIViewController {
     }
     
     private func showTimePicker() {
-        let alert = UIAlertController(title: "Select Time", message: "\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Select Time", message: nil, preferredStyle: .actionSheet)
         
         let timePicker = UIDatePicker()
         timePicker.datePickerMode = .time
         timePicker.preferredDatePickerStyle = .wheels
         timePicker.date = viewModel.deadline ?? Date()
-        timePicker.frame = CGRect(x: 0, y: 50, width: alert.view.bounds.width - 20, height: 200)
+        timePicker.translatesAutoresizingMaskIntoConstraints = false
         
         alert.view.addSubview(timePicker)
+        let pickerHeight: CGFloat = 216
+        timePicker.snp.makeConstraints { make in
+            make.top.equalTo(alert.view.snp.top).offset(52)
+            make.leading.equalTo(alert.view.layoutMarginsGuide.snp.leading)
+            make.trailing.equalTo(alert.view.layoutMarginsGuide.snp.trailing)
+            make.height.equalTo(pickerHeight)
+        }
+        alert.view.snp.makeConstraints { make in
+            make.height.greaterThanOrEqualTo(pickerHeight + 140)
+        }
         
         alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self] _ in
             guard let self = self else { return }
@@ -683,15 +632,20 @@ final class TaskEditorViewController: UIViewController {
     }
     
     private func showReminderPicker() {
-        showRelativeReminderPicker()
-    }
-    
-    private func showRelativeReminderPicker() {
-        let alert = UIAlertController(title: "Add Reminder", message: nil, preferredStyle: .actionSheet)
+        let currentReminders = viewModel.reminders.map { $0.displayText }.joined(separator: "\n")
+        let message = currentReminders.isEmpty ? "Choose when to be reminded" : "Current:\n\(currentReminders)"
+        let alert = UIAlertController(title: "Reminders", message: message, preferredStyle: .actionSheet)
         
         for reminder in viewModel.availableRelativeReminders {
             alert.addAction(UIAlertAction(title: reminder.title, style: .default) { [weak self] _ in
-                self?.viewModel.addRelativeReminder(minutes: reminder.minutes)
+                self?.viewModel.addRelativeReminderIfNeeded(minutes: reminder.minutes)
+                self?.updateRemindersDisplay()
+            })
+        }
+        
+        if !viewModel.reminders.isEmpty {
+            alert.addAction(UIAlertAction(title: "Clear all", style: .destructive) { [weak self] _ in
+                self?.viewModel.clearReminders()
                 self?.updateRemindersDisplay()
             })
         }
@@ -699,7 +653,7 @@ final class TaskEditorViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
         if let popover = alert.popoverPresentationController {
-            popover.sourceView = relativeReminderRow
+            popover.sourceView = reminderRow
         }
         
         present(alert, animated: true)
@@ -797,43 +751,6 @@ final class TaskEditorViewController: UIViewController {
         present(alert, animated: true)
     }
     
-    private func showPhotoPicker() {
-        let alert = UIAlertController(title: "Add Photo", message: nil, preferredStyle: .actionSheet)
-        
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            alert.addAction(UIAlertAction(title: "Take Photo", style: .default) { [weak self] _ in
-                self?.presentImagePicker(sourceType: .camera)
-            })
-        }
-        
-        alert.addAction(UIAlertAction(title: "Choose from Library", style: .default) { [weak self] _ in
-            self?.presentImagePicker(sourceType: .photoLibrary)
-        })
-        
-        if viewModel.photoData != nil {
-            alert.addAction(UIAlertAction(title: "Remove Photo", style: .destructive) { [weak self] _ in
-                self?.viewModel.removePhoto()
-                self?.addPhotoRow.setValue("")
-            })
-        }
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        
-        if let popover = alert.popoverPresentationController {
-            popover.sourceView = addPhotoRow
-        }
-        
-        present(alert, animated: true)
-    }
-    
-    private func presentImagePicker(sourceType: UIImagePickerController.SourceType) {
-        let picker = UIImagePickerController()
-        picker.sourceType = sourceType
-        picker.delegate = self
-        picker.allowsEditing = true
-        present(picker, animated: true)
-    }
-    
     // Helpers
     
     private func updateDeadlineDisplay(_ date: Date) {
@@ -847,12 +764,21 @@ final class TaskEditorViewController: UIViewController {
     }
     
     private func updateRemindersDisplay() {
-        let count = viewModel.reminders.count
-        if count == 0 {
-            reminderRow.setValue("")
-        } else {
-            reminderRow.setValue("\(count) reminder\(count == 1 ? "" : "s")")
+        guard !viewModel.reminders.isEmpty else {
+            reminderRow.setValue("None")
+            return
         }
+        
+        let titles = viewModel.reminders.map { $0.displayText }
+        let displayText: String
+        
+        if titles.count == 1 {
+            displayText = titles[0]
+        } else {
+            displayText = "\(titles[0]) +\(titles.count - 1)"
+        }
+        
+        reminderRow.setValue(displayText)
     }
     
     private func updateDependenciesDisplay() {
@@ -885,23 +811,6 @@ extension TaskEditorViewController: UITextFieldDelegate {
 }
 
 // UIImagePickerControllerDelegate
-
-extension TaskEditorViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        picker.dismiss(animated: true)
-        
-        if let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage {
-            if let data = image.jpegData(compressionQuality: 0.8) {
-                viewModel.setPhoto(data)
-                addPhotoRow.setValue("Photo added")
-            }
-        }
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true)
-    }
-}
 
 // TagsPickerDelegate
 

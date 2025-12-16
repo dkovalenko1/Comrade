@@ -52,7 +52,7 @@ final class TasksViewModel {
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             return Set(TaskSection.allCases)
         }
-        return [.today, .studies]
+        return [.today]
     }()
     
     /// Current sort type
