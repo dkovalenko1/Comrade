@@ -195,6 +195,9 @@ class TimerViewController: UIViewController {
         phaseContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
         phaseContainer.layer.shadowRadius = 6
         phaseContainer.addSubview(phaseStackView)
+        let legendTap = UITapGestureRecognizer(target: self, action: #selector(showPhaseLegend))
+        phaseContainer.addGestureRecognizer(legendTap)
+        phaseContainer.isUserInteractionEnabled = true
         view.addSubview(phaseContainer)
 
         totalCycleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
@@ -686,6 +689,18 @@ Penalty: -15 if you fail. Score can't be less than 0.
 """
         let alert = UIAlertController(title: "Social Credit", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    @objc private func showPhaseLegend() {
+        let message = """
+🔴 Red dot = current step.
+🧠 Brain = focus session.
+☕️ Coffee = short break.
+🧘🏼 Meditation = long break.
+"""
+        let alert = UIAlertController(title: "Cycle Legend", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Got it", style: .default))
         present(alert, animated: true)
     }
 

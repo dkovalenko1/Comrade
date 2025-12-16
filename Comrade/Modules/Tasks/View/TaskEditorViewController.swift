@@ -603,7 +603,7 @@ final class TaskEditorViewController: UIViewController {
             make.height.equalTo(pickerHeight)
         }
         alert.view.snp.makeConstraints { make in
-            make.height.greaterThanOrEqualTo(pickerHeight + 140)
+            make.height.greaterThanOrEqualTo(pickerHeight + 110)
         }
         
         alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self] _ in

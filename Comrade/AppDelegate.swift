@@ -23,6 +23,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Initialize CoreData stack
         _ = CoreDataStack.shared
         
+        // Warm up achievements so observers are registered early
+        _ = AchievementsService.shared
+        
         return true
     }
 

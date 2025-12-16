@@ -300,7 +300,9 @@ final class AchievementsService {
             let completedAt = task.completedAt
         else { return false }
 
-        return deadline.timeIntervalSince(completedAt) >= 5 * 60
+        let timeLeft = deadline.timeIntervalSince(completedAt)
+        // Unlock only when completed within the last 5 minutes before the deadline
+        return timeLeft >= 0 && timeLeft <= 5 * 60
     }
 
     private func customTemplatesCount(context: NSManagedObjectContext?) -> Int {
@@ -432,12 +434,38 @@ final class AchievementsService {
     }
 
     private func setupObservers() {
-        NotificationCenter.default.addObserver(
+        let center = NotificationCenter.default
+
+        center.addObserver(
             forName: .templatesChanged,
             object: nil,
             queue: .main
         ) { [weak self] _ in
             self?.refreshAll()
+        }
+
+        let taskEvents: [Notification.Name] = [.taskCreated, .taskUpdated, .taskDeleted]
+        taskEvents.forEach { name in
+            center.addObserver(
+                forName: name,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                let task = notification.userInfo?["task"] as? TaskEntity
+                self?.refreshAllAsync(task: task)
+            }
+        }
+
+        center.addObserver(
+            forName: .taskCompleted,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let task = notification.userInfo?["task"] as? TaskEntity else {
+                self?.refreshAllAsync()
+                return
+            }
+            self?.checkAfterTaskCompletion(task)
         }
     }
 }

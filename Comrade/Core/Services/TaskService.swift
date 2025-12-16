@@ -86,7 +86,6 @@ final class TaskService {
                     object: nil,
                     userInfo: ["task": task]
                 )
-                AchievementsService.shared.refreshAllAsync()
             }
         }
         
@@ -102,7 +101,6 @@ final class TaskService {
                     object: nil,
                     userInfo: ["task": task]
                 )
-                AchievementsService.shared.refreshAllAsync()
             }
         }
     }
@@ -123,7 +121,6 @@ final class TaskService {
             object: nil,
             userInfo: ["taskId": id]
         )
-        AchievementsService.shared.refreshAllAsync()
     }
     
     /// Deletes a task entity directly
@@ -234,7 +231,6 @@ final class TaskService {
                     object: nil,
                     userInfo: ["task": task]
                 )
-                AchievementsService.shared.checkAfterTaskCompletion(task)
             }
         }
         
@@ -255,7 +251,6 @@ final class TaskService {
                     object: nil,
                     userInfo: ["task": task]
                 )
-                AchievementsService.shared.refreshAllAsync()
             }
         }
     }
