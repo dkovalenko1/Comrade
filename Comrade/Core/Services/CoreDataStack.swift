@@ -79,6 +79,26 @@ class CoreDataStack {
         }
     }
 
+    /// Runs work on a dedicated background context and saves if there are changes.
+    /// Use for heavier operations to avoid blocking the main thread.
+    func performBackground(_ work: @escaping (NSManagedObjectContext) -> Void) {
+        let backgroundContext = persistentContainer.newBackgroundContext()
+        backgroundContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        backgroundContext.automaticallyMergesChangesFromParent = true
+
+        backgroundContext.perform {
+            work(backgroundContext)
+
+            guard backgroundContext.hasChanges else { return }
+            do {
+                try backgroundContext.save()
+            } catch {
+                let nserror = error as NSError
+                print("Failed to save background context: \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
+
     /// Fetches objects of a specific type from Core Data
     func fetch<T: NSManagedObject>(
         _ objectType: T.Type,
