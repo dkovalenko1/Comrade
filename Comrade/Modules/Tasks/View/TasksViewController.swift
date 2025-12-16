@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class TasksViewController: UIViewController {
     
@@ -54,7 +55,7 @@ final class TasksViewController: UIViewController {
         button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
         return button
     }()
-    
+
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -70,7 +71,6 @@ final class TasksViewController: UIViewController {
         view.isHidden = true
         
         let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.spacing = 16
@@ -79,9 +79,9 @@ final class TasksViewController: UIViewController {
         imageView.image = UIImage(systemName: "checkmark.circle")
         imageView.tintColor = .systemGray3
         imageView.contentMode = .scaleAspectFit
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        imageView.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 80, height: 80))
+        }
         
         let titleLabel = UILabel()
         titleLabel.text = "No Tasks"
@@ -98,10 +98,9 @@ final class TasksViewController: UIViewController {
         stackView.addArrangedSubview(subtitleLabel)
         
         view.addSubview(stackView)
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
+        stackView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
         
         return view
     }()
@@ -132,30 +131,32 @@ final class TasksViewController: UIViewController {
         view.addSubview(emptyStateView)
         view.addSubview(addButton)
         
-        NSLayoutConstraint.activate([
-            filterButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            filterButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            filterButton.widthAnchor.constraint(equalToConstant: 36),
-            filterButton.heightAnchor.constraint(equalToConstant: 36),
-            
-            titleLabel.topAnchor.constraint(equalTo: filterButton.bottomAnchor, constant: 8),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            emptyStateView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            addButton.widthAnchor.constraint(equalToConstant: 56),
-            addButton.heightAnchor.constraint(equalToConstant: 56),
-            addButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
-        ])
+        filterButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
+            make.trailing.equalToSuperview().inset(16)
+            make.size.equalTo(CGSize(width: 36, height: 36))
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(filterButton.snp.bottom).offset(8)
+            make.leading.equalToSuperview().offset(16)
+        }
+        
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(16)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        emptyStateView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(16)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        addButton.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 56, height: 56))
+            make.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
     }
     
     private func bindViewModel() {

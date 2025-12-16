@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
@@ -10,14 +11,12 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemGroupedBackground
         return view
     }()
     
     private let iconView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
         view.layer.cornerRadius = 8
         return view
@@ -25,7 +24,6 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
         
@@ -36,7 +34,6 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
         return label
@@ -44,7 +41,6 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let countLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .secondaryLabel
         return label
@@ -52,7 +48,6 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = .systemGray3
         
@@ -112,33 +107,39 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         
         containerView.addGestureRecognizer(tapGesture)
         
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            
-            iconView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
-            iconView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 32),
-            iconView.heightAnchor.constraint(equalToConstant: 32),
-            
-            iconImageView.centerXAnchor.constraint(equalTo: iconView.centerXAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: iconView.centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 16),
-            iconImageView.heightAnchor.constraint(equalToConstant: 16),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
-            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            
-            countLabel.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 6),
-            countLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            
-            chevronImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            chevronImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-            chevronImageView.widthAnchor.constraint(equalToConstant: 16),
-            chevronImageView.heightAnchor.constraint(equalToConstant: 16),
-        ])
+        containerView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview()
+        }
+        
+        iconView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(12)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 32, height: 32))
+        }
+        
+        iconImageView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(CGSize(width: 16, height: 16))
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(iconView.snp.trailing).offset(10)
+            make.centerY.equalToSuperview()
+        }
+        
+        countLabel.snp.makeConstraints { make in
+            make.leading.equalTo(titleLabel.snp.trailing).offset(6)
+            make.centerY.equalToSuperview()
+        }
+        
+        chevronImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 16, height: 16))
+        }
     }
     
     // Configuration

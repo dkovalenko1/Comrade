@@ -265,7 +265,7 @@ final class TaskEditorViewModel {
     
     private func saveReminders(for task: TaskEntity) {
         for reminder in reminders {
-            let reminderEntity = taskService.addReminder(
+            _ = taskService.addReminder(
                 to: task,
                 isRelative: reminder.isRelative,
                 absoluteDate: reminder.absoluteDate,

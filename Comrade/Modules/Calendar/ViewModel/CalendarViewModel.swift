@@ -138,7 +138,7 @@ final class CalendarViewModel {
         let startOfSelectedDate = calendar.startOfDay(for: selectedDate)
         let startOfToday = calendar.startOfDay(for: Date())
         
-        var visibleTasks = allTasks.filter { task in
+        let visibleTasks = allTasks.filter { task in
             guard let deadline = task.deadline else { return false }
             let startOfDeadline = calendar.startOfDay(for: deadline)
             

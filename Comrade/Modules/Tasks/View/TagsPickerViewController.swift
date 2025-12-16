@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 protocol TagsPickerDelegate: AnyObject {
     func tagsPicker(_ picker: TagsPickerViewController, didSelectTags tags: [TagEntity])
@@ -18,7 +19,6 @@ final class TagsPickerViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let table = UITableView(frame: .zero, style: .insetGrouped)
-        table.translatesAutoresizingMaskIntoConstraints = false
         table.delegate = self
         table.dataSource = self
         table.register(TagPickerCell.self, forCellReuseIdentifier: TagPickerCell.identifier)
@@ -28,7 +28,6 @@ final class TagsPickerViewController: UIViewController {
     
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+ Add New Tag", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0), for: .normal)
@@ -64,16 +63,16 @@ final class TagsPickerViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(addButton)
         
-        NSLayoutConstraint.activate([
-            addButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
-            addButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            addButton.heightAnchor.constraint(equalToConstant: 44),
-            
-            tableView.topAnchor.constraint(equalTo: addButton.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        addButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
+            make.leading.equalToSuperview().offset(16)
+            make.height.equalTo(44)
+        }
+        
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(addButton.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
     }
     
     private func setupNavigation() {
@@ -264,21 +263,18 @@ final class TagPickerCell: UITableViewCell {
     
     private let colorDot: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 6
         return view
     }()
     
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16)
         return label
     }()
     
     private let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         imageView.image = UIImage(systemName: "checkmark", withConfiguration: config)
         imageView.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
@@ -313,21 +309,23 @@ final class TagPickerCell: UITableViewCell {
         contentView.addSubview(nameLabel)
         contentView.addSubview(checkmarkImageView)
         
-        NSLayoutConstraint.activate([
-            colorDot.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            colorDot.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            colorDot.widthAnchor.constraint(equalToConstant: 12),
-            colorDot.heightAnchor.constraint(equalToConstant: 12),
-            
-            nameLabel.leadingAnchor.constraint(equalTo: colorDot.trailingAnchor, constant: 12),
-            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: checkmarkImageView.leadingAnchor, constant: -8),
-            
-            checkmarkImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            checkmarkImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            checkmarkImageView.widthAnchor.constraint(equalToConstant: 24),
-            checkmarkImageView.heightAnchor.constraint(equalToConstant: 24)
-        ])
+        colorDot.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 12, height: 12))
+        }
+        
+        nameLabel.snp.makeConstraints { make in
+            make.leading.equalTo(colorDot.snp.trailing).offset(12)
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(checkmarkImageView.snp.leading).offset(-8)
+        }
+        
+        checkmarkImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 24, height: 24))
+        }
     }
     
     // Configuration

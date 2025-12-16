@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 final class SettingsRowView: UIView {
     
@@ -15,7 +16,6 @@ final class SettingsRowView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16)
         label.textColor = .label
         return label
@@ -23,7 +23,6 @@ final class SettingsRowView: UIView {
     
     private let valueLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16)
         label.textColor = .secondaryLabel
         label.textAlignment = .right
@@ -32,7 +31,6 @@ final class SettingsRowView: UIView {
     
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
         imageView.image = UIImage(systemName: "chevron.right", withConfiguration: config)
         imageView.tintColor = .systemGray3
@@ -63,19 +61,22 @@ final class SettingsRowView: UIView {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         addGestureRecognizer(tapGesture)
         
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            
-            chevronImageView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            chevronImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            chevronImageView.widthAnchor.constraint(equalToConstant: 12),
-            chevronImageView.heightAnchor.constraint(equalToConstant: 12),
-            
-            valueLabel.trailingAnchor.constraint(equalTo: chevronImageView.leadingAnchor, constant: -8),
-            valueLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            valueLabel.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 16),
-        ])
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+        }
+        
+        chevronImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(CGSize(width: 12, height: 12))
+        }
+        
+        valueLabel.snp.makeConstraints { make in
+            make.trailing.equalTo(chevronImageView.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
+        }
     }
     
     // Public Methods
