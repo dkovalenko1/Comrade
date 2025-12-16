@@ -56,6 +56,18 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         return imageView
     }()
     
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Delete all", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "delete_completed_button"
+        button.isHidden = true
+        return button
+    }()
+    
     private lazy var tapGesture: UITapGestureRecognizer = {
         let gesture = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
         return gesture
@@ -65,6 +77,9 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     private var isExpanded = false
     private var hasItems = false
+    private var isDeleteEnabled = false
+    
+    var onDeleteTapped: (() -> Void)?
     
     // Init
     
@@ -82,8 +97,11 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         titleLabel.text = nil
         countLabel.text = nil
         onHeaderTapped = nil
+        onDeleteTapped = nil
         isExpanded = false
         hasItems = false
+        isDeleteEnabled = false
+        deleteButton.isHidden = true
     }
     
     override func layoutSubviews() {
@@ -103,6 +121,7 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
         iconView.addSubview(iconImageView)
         containerView.addSubview(titleLabel)
         containerView.addSubview(countLabel)
+        containerView.addSubview(deleteButton)
         containerView.addSubview(chevronImageView)
         
         containerView.addGestureRecognizer(tapGesture)
@@ -144,11 +163,18 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     // Configuration
     
-    func configure(title: String, count: Int, isExpanded: Bool) {
+    func configure(title: String, count: Int, isExpanded: Bool, showDeleteAll: Bool) {
         titleLabel.text = title
         countLabel.text = "\(count)"
         self.isExpanded = isExpanded
         self.hasItems = count > 0 && isExpanded
+        self.isDeleteEnabled = showDeleteAll && count > 0 && isExpanded
+        deleteButton.isHidden = !isDeleteEnabled
+        
+        let identifier = "section_header_\(title.lowercased())"
+        accessibilityIdentifier = identifier
+        contentView.accessibilityIdentifier = identifier
+        containerView.accessibilityIdentifier = identifier
         
         // Chevron rotation
         if isExpanded {
@@ -174,5 +200,10 @@ final class TaskSectionHeaderView: UITableViewHeaderFooterView {
     
     @objc private func headerTapped() {
         onHeaderTapped?()
+    }
+    
+    @objc private func deleteTapped() {
+        guard isDeleteEnabled else { return }
+        onDeleteTapped?()
     }
 }

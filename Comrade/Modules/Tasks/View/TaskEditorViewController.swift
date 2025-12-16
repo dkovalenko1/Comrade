@@ -32,6 +32,7 @@ final class TaskEditorViewController: UIViewController {
         button.backgroundColor = .systemGray5
         button.layer.cornerRadius = 15
         button.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "close_task_button"
         return button
     }()
     
@@ -44,6 +45,7 @@ final class TaskEditorViewController: UIViewController {
         button.backgroundColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 0.15)
         button.layer.cornerRadius = 15
         button.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "save_task_button"
         return button
     }()
     
@@ -55,6 +57,7 @@ final class TaskEditorViewController: UIViewController {
         field.textColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
         field.delegate = self
         field.returnKeyType = .next
+        field.accessibilityIdentifier = "task_name_field"
         return field
     }()
     

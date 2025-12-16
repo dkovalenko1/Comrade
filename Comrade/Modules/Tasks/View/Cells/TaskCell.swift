@@ -21,6 +21,7 @@ final class TaskCell: UITableViewCell {
     private lazy var checkboxButton: UIButton = {
         let button = UIButton(type: .system)
         button.addTarget(self, action: #selector(checkboxTapped), for: .touchUpInside)
+        button.accessibilityIdentifier = "task_checkbox"
         return button
     }()
     

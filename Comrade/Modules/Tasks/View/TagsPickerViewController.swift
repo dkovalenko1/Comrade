@@ -10,10 +10,7 @@ final class TagsPickerViewController: UIViewController {
     // Properties
     
     weak var delegate: TagsPickerDelegate?
-    
-    private let tagService = TagService.shared
-    private var allTags: [TagEntity] = []
-    private var selectedTags: Set<TagEntity> = []
+    private let viewModel: TagsPickerViewModel
     
     // UI Elements
     
@@ -38,8 +35,8 @@ final class TagsPickerViewController: UIViewController {
     // Init
     
     init(selectedTags: [TagEntity] = []) {
+        self.viewModel = TagsPickerViewModel(selectedTags: selectedTags)
         super.init(nibName: nil, bundle: nil)
-        self.selectedTags = Set(selectedTags)
     }
     
     required init?(coder: NSCoder) {
@@ -52,7 +49,8 @@ final class TagsPickerViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigation()
-        loadTags()
+        bindViewModel()
+        viewModel.loadTags()
     }
     
     // Setup
@@ -92,16 +90,22 @@ final class TagsPickerViewController: UIViewController {
         navigationItem.rightBarButtonItem?.tintColor = UIColor(red: 1.0, green: 0.42, blue: 0.42, alpha: 1.0)
     }
     
-    private func loadTags() {
-        allTags = tagService.fetchAllTags()
-        tableView.reloadData()
-        
-        // Restore selection
-        for (index, tag) in allTags.enumerated() {
-            if selectedTags.contains(tag) {
-                let indexPath = IndexPath(row: index, section: 0)
-                tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+    private func bindViewModel() {
+        viewModel.onTagsUpdated = { [weak self] in
+            self?.tableView.reloadData()
+            
+            // Restore selection
+            guard let self = self else { return }
+            for (index, tag) in self.viewModel.allTags.enumerated() {
+                if self.viewModel.isTagSelected(tag) {
+                    let indexPath = IndexPath(row: index, section: 0)
+                    self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+                }
             }
+        }
+        
+        viewModel.onError = { [weak self] message in
+            self?.showAlert(title: "Error", message: message)
         }
     }
     
@@ -112,7 +116,7 @@ final class TagsPickerViewController: UIViewController {
     }
     
     @objc private func doneTapped() {
-        delegate?.tagsPicker(self, didSelectTags: Array(selectedTags))
+        delegate?.tagsPicker(self, didSelectTags: viewModel.selectedTagsArray)
         dismiss(animated: true)
     }
     
@@ -127,18 +131,11 @@ final class TagsPickerViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Create", style: .default) { [weak self] _ in
             guard let self = self,
-                  let name = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  !name.isEmpty else {
+                  let name = alert.textFields?.first?.text else {
                 return
             }
             
-            let colorHex = self.tagService.randomColorHex()
-            if let newTag = self.tagService.createTag(name: name, colorHex: colorHex) {
-                self.selectedTags.insert(newTag)
-                self.loadTags()
-            } else {
-                self.showAlert(title: "Error", message: "Tag with this name already exists")
-            }
+            self.viewModel.createTag(named: name)
         })
         
         present(alert, animated: true)
@@ -156,7 +153,7 @@ final class TagsPickerViewController: UIViewController {
 extension TagsPickerViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allTags.count
+        return viewModel.allTags.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -164,8 +161,8 @@ extension TagsPickerViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let tag = allTags[indexPath.row]
-        let isSelected = selectedTags.contains(tag)
+        guard let tag = viewModel.tag(at: indexPath.row) else { return cell }
+        let isSelected = viewModel.isTagSelected(tag)
         cell.configure(with: tag, isSelected: isSelected)
         
         return cell
@@ -177,8 +174,7 @@ extension TagsPickerViewController: UITableViewDataSource {
 extension TagsPickerViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let tag = allTags[indexPath.row]
-        selectedTags.insert(tag)
+        viewModel.selectTag(at: indexPath.row)
         
         if let cell = tableView.cellForRow(at: indexPath) as? TagPickerCell {
             cell.setSelected(true)
@@ -186,8 +182,7 @@ extension TagsPickerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        let tag = allTags[indexPath.row]
-        selectedTags.remove(tag)
+        viewModel.deselectTag(at: indexPath.row)
         
         if let cell = tableView.cellForRow(at: indexPath) as? TagPickerCell {
             cell.setSelected(false)
@@ -195,7 +190,7 @@ extension TagsPickerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let tag = allTags[indexPath.row]
+        guard let tag = viewModel.tag(at: indexPath.row) else { return nil }
         
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
             self?.confirmDeleteTag(tag, at: indexPath)
@@ -222,9 +217,8 @@ extension TagsPickerViewController: UITableViewDelegate {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
-            self?.selectedTags.remove(tag)
-            self?.tagService.deleteTag(tag)
-            self?.loadTags()
+            guard let index = self?.viewModel.allTags.firstIndex(of: tag) else { return }
+            self?.viewModel.deleteTag(at: index)
         })
         
         present(alert, animated: true)
@@ -240,13 +234,9 @@ extension TagsPickerViewController: UITableViewDelegate {
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Save", style: .default) { [weak self] _ in
-            guard let name = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  !name.isEmpty else {
-                return
-            }
-            
-            self?.tagService.updateTag(tag, name: name)
-            self?.loadTags()
+            guard let name = alert.textFields?.first?.text else { return }
+            guard let index = self?.viewModel.allTags.firstIndex(of: tag) else { return }
+            self?.viewModel.updateTag(at: index, name: name)
         })
         
         present(alert, animated: true)

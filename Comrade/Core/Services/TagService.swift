@@ -9,7 +9,7 @@ final class TagService {
     
     // Properties
     
-    private let coreDataStack = CoreDataStack.shared
+    private let coreDataStack: CoreDataStack
     
     // Default Tags
     
@@ -26,7 +26,8 @@ final class TagService {
     
     // Init
     
-    private init() {
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
         createDefaultTagsIfNeeded()
     }
     

@@ -61,9 +61,9 @@ final class TaskEditorViewModel {
     
     // Properties
     
-    private let taskService = TaskService.shared
-    private let notificationService = NotificationService.shared
-    private let categoryService = CategoryService.shared
+    private let taskService: TaskService
+    private let notificationService: NotificationService
+    private let categoryService: CategoryService
     
     let mode: TaskEditorMode
     private var existingTask: TaskEntity?
@@ -108,8 +108,16 @@ final class TaskEditorViewModel {
     
     // Init
     
-    init(mode: TaskEditorMode) {
+    init(
+        mode: TaskEditorMode,
+        taskService: TaskService = .shared,
+        notificationService: NotificationService = .shared,
+        categoryService: CategoryService = .shared
+    ) {
         self.mode = mode
+        self.taskService = taskService
+        self.notificationService = notificationService
+        self.categoryService = categoryService
         
         if case .edit(let task) = mode {
             self.existingTask = task

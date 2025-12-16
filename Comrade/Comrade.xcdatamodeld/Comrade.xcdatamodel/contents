@@ -32,6 +32,13 @@
         <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TimerSession" inverseName="task" inverseEntity="TimerSession"/>
         <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TagEntity" inverseName="tasks" inverseEntity="TagEntity"/>
     </entity>
+    <entity name="CategoryEntity" representedClassName="CategoryEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="colorHex" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isDefault" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="sortOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="TimerSession" representedClassName="TimerSession" syncable="YES" codeGenerationType="class">
         <attribute name="creditsEarned" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="duration" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -42,6 +49,7 @@
         <attribute name="wasCompleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <relationship name="task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="session" inverseEntity="TaskEntity"/>
     </entity>
+</model>
     <entity name="PomodoroTemplate" representedClassName="PomodoroTemplate" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="cyclesBeforeLongBreak" optional="YES" attributeType="Integer 16" defaultValueString="4" usesScalarValueType="YES"/>

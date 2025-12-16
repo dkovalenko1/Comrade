@@ -1,6 +1,18 @@
 import Foundation
 import UserNotifications
 
+protocol NotificationCenterProtocol: AnyObject {
+    func requestAuthorization(options: UNAuthorizationOptions, completionHandler: @escaping (Bool, Error?) -> Void)
+    func getNotificationSettings(completionHandler: @escaping (UNNotificationSettings) -> Void)
+    func add(_ request: UNNotificationRequest, withCompletionHandler completionHandler: ((Error?) -> Void)?)
+    func removePendingNotificationRequests(withIdentifiers identifiers: [String])
+    func removeAllPendingNotificationRequests()
+    func getPendingNotificationRequests(completionHandler: @escaping ([UNNotificationRequest]) -> Void)
+    var delegate: UNUserNotificationCenterDelegate? { get set }
+}
+
+extension UNUserNotificationCenter: NotificationCenterProtocol {}
+
 // NotificationService
 
 final class NotificationService: NSObject {
@@ -9,11 +21,12 @@ final class NotificationService: NSObject {
     
     static let shared = NotificationService()
     
-    private let notificationCenter = UNUserNotificationCenter.current()
+    private var notificationCenter: NotificationCenterProtocol
     
-    private override init() {
+    init(notificationCenter: NotificationCenterProtocol = UNUserNotificationCenter.current()) {
+        self.notificationCenter = notificationCenter
         super.init()
-        notificationCenter.delegate = self
+        self.notificationCenter.delegate = self
     }
     
     // Permission
@@ -184,7 +197,7 @@ final class NotificationService: NSObject {
             trigger: trigger
         )
         
-        notificationCenter.add(request)
+        notificationCenter.add(request, withCompletionHandler: nil)
     }
     
     /// Schedules a notification for when a break ends
@@ -203,7 +216,7 @@ final class NotificationService: NSObject {
             trigger: trigger
         )
         
-        notificationCenter.add(request)
+        notificationCenter.add(request, withCompletionHandler: nil)
     }
     
     /// Cancels timer-related notifications

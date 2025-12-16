@@ -39,7 +39,7 @@ final class TasksViewModel {
     
     // Properties
     
-    private let taskService = TaskService.shared
+    private let taskService: TaskService
     
     /// All tasks from database
     private var allTasks: [TaskEntity] = []
@@ -48,7 +48,12 @@ final class TasksViewModel {
     private(set) var sections: [TaskSection: [TaskEntity]] = [:]
     
     /// Expanded state for each section
-    private(set) var expandedSections: Set<TaskSection> = [.today, .studies]
+    private(set) var expandedSections: Set<TaskSection> = {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
+            return Set(TaskSection.allCases)
+        }
+        return [.today, .studies]
+    }()
     
     /// Current sort type
     var sortType: TaskSortType = .createdAt
@@ -65,7 +70,8 @@ final class TasksViewModel {
     
     // Init
     
-    init() {
+    init(taskService: TaskService = .shared) {
+        self.taskService = taskService
         setupNotificationObservers()
     }
     
@@ -287,6 +293,20 @@ final class TasksViewModel {
         NotificationService.shared.cancelReminders(for: taskId)
         
         taskService.deleteTask(id: taskId)
+    }
+    
+    /// Deletes all completed tasks
+    func deleteAllCompletedTasks() {
+        let completedTasks = tasks(for: .completed).filter { $0.isCompleted }
+        
+        for task in completedTasks {
+            if let taskId = task.id {
+                NotificationService.shared.cancelReminders(for: taskId)
+                taskService.deleteTask(id: taskId)
+            }
+        }
+        
+        loadTasks()
     }
     
     // Search
