@@ -62,7 +62,7 @@ extension AchievementsViewController {
     @objc private func resetAchievementsTapped() {
         let alert = UIAlertController(
             title: "Reset achievements?",
-            message: "Удалить все ачивки и пересоздать при следующей загрузке.",
+            message: "Delete all achievenets adn reload.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
